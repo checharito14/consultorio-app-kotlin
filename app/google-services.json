@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "963836660765",
+    "project_id": "consultorio-4dd02",
+    "storage_bucket": "consultorio-4dd02.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:963836660765:android:9f5d3712c1200ca58a4af4",
+        "android_client_info": {
+          "package_name": "com.example.consultorioapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzvMlaf9_P4ySV2fW98MaFGfR-v23u5fM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
