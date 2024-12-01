@@ -1,6 +1,5 @@
-package com.example.consultorioapp.presentation.initial
+package com.example.consultorioapp.ui
 
-import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,8 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.consultorioapp.R
-import com.example.consultorioapp.presentation.login.Header
-import org.w3c.dom.Text
+import com.example.consultorioapp.ui.login.Header
 
 
 @Preview
@@ -42,13 +40,7 @@ fun InitialScreen(navigateToLogin: () ->  Unit = {}, navigateToSignUp: () -> Uni
         modifier = Modifier
             .fillMaxSize()
             .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFCBF3F0),
-                        Color(0xFFFFFFFF),
-                        Color(0xFF2EC4B6),
-                    )
-                )
+                MaterialTheme.colorScheme.background
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -57,15 +49,13 @@ fun InitialScreen(navigateToLogin: () ->  Unit = {}, navigateToSignUp: () -> Uni
         Spacer(modifier = Modifier.weight(1f))
         Text(
             "Gestion medica",
-            color = Color.Black,
-            fontSize = 38.sp,
-            fontWeight = FontWeight.Bold
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.displayLarge
         )
         Text(
             "al instante",
             color = Color.Black,
-            fontSize = 38.sp,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.displayLarge
         )
         Spacer(modifier = Modifier.weight(1f))
         Button(
@@ -73,7 +63,8 @@ fun InitialScreen(navigateToLogin: () ->  Unit = {}, navigateToSignUp: () -> Uni
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Blue
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
             Text("Registrate", color = Color.White, fontWeight = FontWeight.Bold)
