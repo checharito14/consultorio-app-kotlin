@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-11-29T17:38:48.646273500Z">
+        <DropdownSelection timestamp="2024-12-02T16:51:47.843487Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\mc_ra\.android\avd\Pixel_9_API_35.avd" />
@@ -17,6 +17,9 @@
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
       <SelectionState runConfigName="Header (1)">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="ConsultorioBottomNavigation">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

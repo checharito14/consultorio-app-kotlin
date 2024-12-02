@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,15 +18,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,6 +42,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.consultorioapp.R
+import com.example.consultorioapp.ui.components.ConsultorioHeader
+import com.example.consultorioapp.ui.components.CustomTextField
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -43,6 +51,8 @@ fun LoginScreen(navController: NavController, auth: FirebaseAuth, viewModel: Log
 
     val email: String by viewModel.email.observeAsState(initial = "")
     val password: String by viewModel.password.observeAsState(initial = "")
+
+    val navigateToHome: Boolean by viewModel.navigateToHome.observeAsState(initial = false)
 
 
     Column(
@@ -52,15 +62,12 @@ fun LoginScreen(navController: NavController, auth: FirebaseAuth, viewModel: Log
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val loginState: LoginState by viewModel.loginState.observeAsState(initial = LoginState())
-        val navigateToHome: Boolean by viewModel.navigateToHome.observeAsState(initial = false)
-
         if (navigateToHome) {
             // Navegamos a la pantalla principal y reseteamos el estado
             navController.navigate("home")
             viewModel.onNavigatedToHome() // Resetea el estado en el ViewModel
         }
-        Header()
+        ConsultorioHeader()
         HorizontalDivider(
             modifier = Modifier
                 .fillMaxWidth()
@@ -71,11 +78,25 @@ fun LoginScreen(navController: NavController, auth: FirebaseAuth, viewModel: Log
             "Accede con tu cuenta",
             fontSize = 32.sp,
             fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .align(Alignment.Start)
+                .padding(vertical = 18.dp),
             color = Color.Black
         )
-        EmailField(email, viewModel::onEmailChange)
+        //Email
+        CustomTextField(
+            value = email,
+            onTextFieldChanged = viewModel::onEmailChange,
+            label = "Correo electronico"
+        )
         Spacer(modifier = Modifier.height(32.dp))
-        PasswordField(password, viewModel::onPasswordChange)
+        //Password
+        CustomTextField(
+            value = password,
+            onTextFieldChanged = viewModel::onPasswordChange,
+            label = "Contraseña",
+            isPassword = true
+        )
         ForgetPassword(
             Modifier
                 .align(Alignment.End)
@@ -91,64 +112,6 @@ fun LoginScreen(navController: NavController, auth: FirebaseAuth, viewModel: Log
         ) {
             Text("Inicia sesion")
         }
-    }
-}
-
-@Composable
-fun EmailField(email: String, onTextFieldChanged: (String) -> Unit) {
-    OutlinedTextField(
-        value = email,
-        onValueChange = { onTextFieldChanged(it) },
-        modifier = Modifier.fillMaxWidth(),
-        placeholder = {
-            Text(
-                text = "Correo electrónico"
-            )
-        },
-        keyboardOptions = KeyboardOptions.Default.copy(
-            keyboardType = KeyboardType.Email,  // Configura el teclado para email
-        ),
-    )
-}
-
-@Composable
-fun PasswordField(password: String, onTextFieldChanged: (String) -> Unit) {
-    OutlinedTextField(
-        value = password,
-        onValueChange = { onTextFieldChanged(it) },
-        modifier = Modifier.fillMaxWidth(),
-        placeholder = {
-            Text(
-                text = "Contraseña"
-            )
-        },
-        visualTransformation = PasswordVisualTransformation(), // Esto oculta el texto
-        keyboardOptions = KeyboardOptions.Default.copy(
-            keyboardType = KeyboardType.Password,  // Usa el teclado de contraseña
-        ),
-    )
-}
-
-@Composable
-fun Header(modifier: Modifier = Modifier) {
-    Row(
-        modifier = modifier
-            .padding(20.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Image(
-            modifier = Modifier.size(34.dp),
-            painter = painterResource(R.drawable.ic_logo),
-            contentDescription = null
-        )
-        Text(
-            "DocHub",
-            modifier = Modifier.padding(start = 4.dp),
-            style = MaterialTheme.typography.displaySmall,
-            color = MaterialTheme.colorScheme.primary
-        )
     }
 }
 

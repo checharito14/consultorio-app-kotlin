@@ -16,7 +16,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,15 +29,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.consultorioapp.R
-import com.example.consultorioapp.ui.login.Header
+import com.example.consultorioapp.ui.components.ConsultorioHeader
+import com.example.consultorioapp.ui.theme.AppTheme
 
 
-@Preview
 @Composable
-fun InitialScreen(navigateToLogin: () ->  Unit = {}, navigateToSignUp: () -> Unit = {}) {
+fun InitialScreen(navigateToLogin: () -> Unit = {}, navigateToSignUp: () -> Unit = {}) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -45,7 +48,7 @@ fun InitialScreen(navigateToLogin: () ->  Unit = {}, navigateToSignUp: () -> Uni
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.weight(1f))
-        Header()
+        ConsultorioHeader()
         Spacer(modifier = Modifier.weight(1f))
         Text(
             "Gestion medica",
@@ -54,7 +57,7 @@ fun InitialScreen(navigateToLogin: () ->  Unit = {}, navigateToSignUp: () -> Uni
         )
         Text(
             "al instante",
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.displayLarge
         )
         Spacer(modifier = Modifier.weight(1f))
@@ -62,6 +65,11 @@ fun InitialScreen(navigateToLogin: () ->  Unit = {}, navigateToSignUp: () -> Uni
             onClick = { navigateToSignUp() }, modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp),
+            shape = MaterialTheme.shapes.medium,
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 6.dp,
+                pressedElevation = 12.dp
+            ),
             colors = ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
@@ -73,34 +81,53 @@ fun InitialScreen(navigateToLogin: () ->  Unit = {}, navigateToSignUp: () -> Uni
         CustomButton(Modifier.clickable { }, "google", painterResource(id = R.drawable.google))
         Spacer(modifier = Modifier.height(6.dp))
         CustomButton(Modifier.clickable { }, "facebook", painterResource(id = R.drawable.facebook))
-        Text("Inicia sesion", modifier = Modifier.padding(26.dp).clickable { navigateToLogin() })
+        Text("Inicia sesion", modifier = Modifier
+            .padding(26.dp)
+            .clickable { navigateToLogin() },
+            color = MaterialTheme.colorScheme.onBackground)
         Spacer(modifier = Modifier.weight(1f))
     }
 }
 
-
 @Composable
 fun CustomButton(modifier: Modifier = Modifier, text: String, painter: Painter) {
-    Box(
+    Surface(
         modifier = modifier
-            .fillMaxWidth()
-            .height(40.dp)
-            .padding(horizontal = 32.dp)
-            .border(2.dp, Color(0xFFD3EDF0), CircleShape),
-        contentAlignment = Alignment.CenterStart
+            .padding(horizontal = 32.dp),
+        shape = MaterialTheme.shapes.medium,
+        tonalElevation = 5.dp,
+        shadowElevation = 5.dp
     ) {
-        Image(
-            painter = painter,
-            contentDescription = null,
-            modifier = Modifier
-                .padding(start = 16.dp)
-                .size(16.dp)
-        )
-        Text(
-            "Inicia con $text",
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Center,
-            fontWeight = FontWeight.Bold
-        )
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(40.dp)
+                .background(
+                    MaterialTheme.colorScheme.onPrimary,
+                    MaterialTheme.shapes.medium,
+                ),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            Image(
+                painter = painter,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(start = 16.dp)
+                    .size(16.dp)
+            )
+            Text(
+                "Inicia con $text",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center,
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun InitialScreenPreview() {
+    AppTheme {
+        InitialScreen()
     }
 }
