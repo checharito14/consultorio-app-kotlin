@@ -1,8 +1,5 @@
 package com.example.consultorioapp.ui.login
 
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.consultorioapp.ValidationUtils
@@ -21,7 +18,7 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
     fun onEmailChange(newEmail: String) {
         _uiState.value = uiState.value.copy(
             email = newEmail,
-            error = if (!ValidationUtils.isEmailValid(newEmail)) "Ingresa un correo valido" else null
+            emailError = if (ValidationUtils.isEmailValid(newEmail)) null else "Ingresa un correo valido"
         )
 
 
@@ -30,22 +27,32 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
     fun onPasswordChange(newPassword: String) {
         _uiState.value = uiState.value.copy(
             password = newPassword,
-            error = if (!ValidationUtils.isPasswordValid(newPassword)) "La contraseña debe contener al menos 6 caracteres" else null
+            passwordError = if (ValidationUtils.isPasswordValid(newPassword)) null else "La contraseña debe contener al menos 6 caracteres"
         )
 
     }
 
     //LOGIN
     fun login() {
-        val state = _uiState.value ?: return
-        if(!ValidationUtils.isEmailValid(state.email) || !ValidationUtils.isPasswordValid(state.password)) {
-            _uiState.value = state.copy(error = "Error")
+        val user = User(email = _uiState.value.email, password = _uiState.value.password)
+
+        if (!ValidationUtils.isEmailValid(_uiState.value.email)) {
+            _uiState.value = _uiState.value.copy(emailError = "Ingresa un correo valido")
             return
         }
-        _uiState.value = state.copy(isLoading = true, error = null)
+        if (!ValidationUtils.isPasswordValid(uiState.value.password)) {
+            _uiState.value =
+                _uiState.value.copy(passwordError = "La contraseña debe contener al menos 6 caracteres")
+            return
+        }
+        _uiState.value = _uiState.value.copy(
+            isLoading = true,
+            passwordError = null,
+            emailError = null,
+            error = null
+        )
 
         viewModelScope.launch {
-            val user = User(email = _uiState.value.email, password = _uiState.value.password)
             val result = repository.login(user)
 
             if (result.isSuccess) {
@@ -57,7 +64,8 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = result.exceptionOrNull()?.message
+                    error = "Usuario no encontrado",
+                    password = "",
                 )
             }
         }
@@ -75,5 +83,7 @@ data class LoginState(
     val isLoading: Boolean = false,
     val success: Boolean = false,
     val error: String? = null,
+    val emailError: String? = null,
+    val passwordError: String? = null,
     val navigateToHome: Boolean = false
 )

@@ -53,10 +53,6 @@ class SignupViewModel(
             password = _uiState.value.password
         )
 
-        if(!user.isValidSignup()) {
-            _uiState.value = _uiState.value.copy(error = "Por favor completa todos los campos")
-            return
-        }
         _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
         viewModelScope.launch {
@@ -70,7 +66,6 @@ class SignupViewModel(
                             "id" to userId,
                             "name" to user.name,
                             "email" to user.email,
-                            "especialidad" to user.especialidad
                         )
                     ).addOnSuccessListener {
                         Log.d("Usario", "Creado")

@@ -82,7 +82,8 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
         CustomTextField(
             value = uiState.email,
             onTextFieldChanged = viewModel::onEmailChange,
-            label = "Correo electronico"
+            label = "Correo electronico",
+            error = uiState.emailError ?: null
         )
         Spacer(modifier = Modifier.height(32.dp))
         //Password
@@ -90,7 +91,8 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
             value = uiState.password,
             onTextFieldChanged = viewModel::onPasswordChange,
             label = "Contraseña",
-            isPassword = true
+            isPassword = true,
+            error = uiState.passwordError ?: null
         )
         ForgetPassword(
             Modifier
