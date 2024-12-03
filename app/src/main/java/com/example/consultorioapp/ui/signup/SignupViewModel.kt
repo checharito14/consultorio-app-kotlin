@@ -1,9 +1,11 @@
 package com.example.consultorioapp.ui.signup
 
 import android.util.Log
+import androidx.compose.runtime.remember
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.consultorioapp.data.models.User
 import com.example.consultorioapp.data.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -13,61 +15,54 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class SignupViewModel(
     private val authRepository: AuthRepository,
     private val firestore: FirebaseFirestore
 ) : ViewModel() {
-    private val _email = MutableLiveData<String>()
-    val email: LiveData<String> = _email
 
-    private val _password = MutableLiveData<String>()
-    val password: LiveData<String> = _password
-
-    private val _name = MutableLiveData<String>()
-    val name: LiveData<String> = _name
-
-    private val _especialidad = MutableLiveData<String>()
-    val especialidad: LiveData<String> = _especialidad
-
-    private val _navigateToHome = MutableLiveData<Boolean>()
-    val navigateToHome: LiveData<Boolean> = _navigateToHome
+    private val _uiState = MutableStateFlow(SignupState())
+    val uiState: StateFlow<SignupState> = _uiState.asStateFlow()
 
     fun onEmailChange(newEmail: String) {
-        _email.value = newEmail
+        _uiState.value = uiState.value.copy(email = newEmail)
     }
 
     fun onPasswordChange(newPassword: String) {
-        _password.value = newPassword
+        _uiState.value = uiState.value.copy(password = newPassword)
     }
 
     fun onNameChange(newName: String) {
-        _name.value = newName
-    }
-
-    fun onEspecialidadChange(newEspecialidad: String) {
-        _especialidad.value = newEspecialidad
+        _uiState.value = uiState.value.copy(name = newName)
     }
 
     fun onNavigatedToHome() {
-        _navigateToHome.value = false // Reseteamos el estado después de navegar
+        _uiState.value =
+            uiState.value.copy(navigateToHome = false) // Reseteamos el estado después de navegar
     }
 
 
     fun register() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val user = User(
-                name = _name.value.orEmpty(),
-                email = _email.value.orEmpty(),
-                especialidad = _especialidad.value.orEmpty(),
-                password = _password.value.orEmpty()
-            )
+        val user = User(
+            name = _uiState.value.name,
+            email = _uiState.value.email,
+            password = _uiState.value.password
+        )
 
+        if(!user.isValidSignup()) {
+            _uiState.value = _uiState.value.copy(error = "Por favor completa todos los campos")
+            return
+        }
+        _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+
+        viewModelScope.launch {
             val result = authRepository.signup(user)
 
             if (result.isSuccess) {
-                _navigateToHome.postValue(true)
                 val userId = result.getOrNull()?.uid
                 if (userId != null) {
                     firestore.collection("usuarios").document(userId).set(
@@ -87,4 +82,15 @@ class SignupViewModel(
         }
     }
 }
+
+
+data class SignupState(
+    val name: String = "",
+    val email: String = "",
+    val password: String = "",
+    val isLoading: Boolean = false,
+    val success: Boolean = false,
+    val error: String? = null,
+    val navigateToHome: Boolean = false
+)
 

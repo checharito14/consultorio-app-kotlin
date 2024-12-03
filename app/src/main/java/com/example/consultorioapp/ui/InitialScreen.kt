@@ -64,7 +64,8 @@ fun InitialScreen(navigateToLogin: () -> Unit = {}, navigateToSignUp: () -> Unit
         Button(
             onClick = { navigateToSignUp() }, modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 32.dp),
+                .padding(horizontal = 32.dp)
+                .height(height = 50.dp),
             shape = MaterialTheme.shapes.medium,
             elevation = ButtonDefaults.buttonElevation(
                 defaultElevation = 6.dp,
@@ -77,20 +78,14 @@ fun InitialScreen(navigateToLogin: () -> Unit = {}, navigateToSignUp: () -> Unit
         ) {
             Text("Registrate", color = Color.White, fontWeight = FontWeight.Bold)
         }
-        Spacer(modifier = Modifier.height(6.dp))
-        CustomButton(Modifier.clickable { }, "google", painterResource(id = R.drawable.google))
-        Spacer(modifier = Modifier.height(6.dp))
-        CustomButton(Modifier.clickable { }, "facebook", painterResource(id = R.drawable.facebook))
-        Text("Inicia sesion", modifier = Modifier
-            .padding(26.dp)
-            .clickable { navigateToLogin() },
-            color = MaterialTheme.colorScheme.onBackground)
+        Spacer(modifier = Modifier.height(10.dp))
+        CustomButton(Modifier.clickable { navigateToLogin() })
         Spacer(modifier = Modifier.weight(1f))
     }
 }
 
 @Composable
-fun CustomButton(modifier: Modifier = Modifier, text: String, painter: Painter) {
+fun CustomButton(modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier
             .padding(horizontal = 32.dp),
@@ -101,22 +96,15 @@ fun CustomButton(modifier: Modifier = Modifier, text: String, painter: Painter) 
         Box(
             modifier = modifier
                 .fillMaxWidth()
-                .height(40.dp)
+                .height(50.dp)
                 .background(
                     MaterialTheme.colorScheme.onPrimary,
                     MaterialTheme.shapes.medium,
                 ),
             contentAlignment = Alignment.CenterStart
         ) {
-            Image(
-                painter = painter,
-                contentDescription = null,
-                modifier = Modifier
-                    .padding(start = 16.dp)
-                    .size(16.dp)
-            )
             Text(
-                "Inicia con $text",
+                "Inicia sesion",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
             )

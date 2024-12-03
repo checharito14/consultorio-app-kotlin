@@ -2,6 +2,7 @@ package com.example.consultorioapp.ui.login
 
 import android.content.ContentValues.TAG
 import android.util.Log
+import android.widget.Space
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -27,6 +28,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -40,6 +43,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.consultorioapp.R
 import com.example.consultorioapp.ui.components.ConsultorioHeader
@@ -47,13 +51,9 @@ import com.example.consultorioapp.ui.components.CustomTextField
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
-fun LoginScreen(navController: NavController, auth: FirebaseAuth, viewModel: LoginViewModel) {
+fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
 
-    val email: String by viewModel.email.observeAsState(initial = "")
-    val password: String by viewModel.password.observeAsState(initial = "")
-
-    val navigateToHome: Boolean by viewModel.navigateToHome.observeAsState(initial = false)
-
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -62,11 +62,6 @@ fun LoginScreen(navController: NavController, auth: FirebaseAuth, viewModel: Log
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (navigateToHome) {
-            // Navegamos a la pantalla principal y reseteamos el estado
-            navController.navigate("home")
-            viewModel.onNavigatedToHome() // Resetea el estado en el ViewModel
-        }
         ConsultorioHeader()
         HorizontalDivider(
             modifier = Modifier
@@ -85,14 +80,14 @@ fun LoginScreen(navController: NavController, auth: FirebaseAuth, viewModel: Log
         )
         //Email
         CustomTextField(
-            value = email,
+            value = uiState.email,
             onTextFieldChanged = viewModel::onEmailChange,
             label = "Correo electronico"
         )
         Spacer(modifier = Modifier.height(32.dp))
         //Password
         CustomTextField(
-            value = password,
+            value = uiState.password,
             onTextFieldChanged = viewModel::onPasswordChange,
             label = "Contraseña",
             isPassword = true
@@ -105,12 +100,34 @@ fun LoginScreen(navController: NavController, auth: FirebaseAuth, viewModel: Log
         Spacer(modifier = Modifier.height(18.dp))
         Button(
             onClick = {
-                viewModel.login(auth)
+                viewModel.login()
             },
             modifier = Modifier.fillMaxWidth(),
+            enabled = !uiState.isLoading,
             shape = RoundedCornerShape(0.dp)
         ) {
-            Text("Inicia sesion")
+            if (uiState.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.primary)
+            } else {
+                Text("Inicia sesion")
+            }
+        }
+
+        if(uiState.error != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = uiState.error ?: "",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+    LaunchedEffect(uiState.navigateToHome) {
+        if (uiState.navigateToHome) {
+            navController.navigate("home") {
+                popUpTo("login") { inclusive = true }
+            }
+            viewModel.onNavigatedToHome()
         }
     }
 }

@@ -1,8 +1,6 @@
 package com.example.consultorioapp.ui
 
-import androidx.compose.foundation.layout.BoxScopeInstance.align
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRowScopeInstance.align
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -30,9 +28,9 @@ fun HomePortrait() {
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-    Column(modifier.Arrangment(Alignment.Center)) {
-        Text("hola")
-    }
+//    Column(modifier.Arrangment(Alignment.Center)) {
+//        Text("hola")
+//    }
 }
 
 @Preview(showBackground = true, showSystemUi = true)

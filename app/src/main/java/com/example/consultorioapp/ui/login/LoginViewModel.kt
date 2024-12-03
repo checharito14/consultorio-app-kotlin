@@ -4,57 +4,76 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.consultorioapp.ValidationUtils
 import com.example.consultorioapp.data.models.User
 import com.example.consultorioapp.data.repository.AuthRepository
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
 
-    private val _email = MutableLiveData<String>()
-    val email: LiveData<String> = _email
-
-    private val _password = MutableLiveData<String>()
-    val password: LiveData<String> = _password
-
-    private val _loginState = MutableLiveData(LoginState())
-    val loginState: LiveData<LoginState> = _loginState
-
-    private val _navigateToHome = MutableLiveData<Boolean>()
-    val navigateToHome: LiveData<Boolean> = _navigateToHome
+    private val _uiState = MutableStateFlow(LoginState())
+    val uiState: StateFlow<LoginState> = _uiState.asStateFlow()
 
     fun onEmailChange(newEmail: String) {
-        _email.value = newEmail
+        _uiState.value = uiState.value.copy(
+            email = newEmail,
+            error = if (!ValidationUtils.isEmailValid(newEmail)) "Ingresa un correo valido" else null
+        )
+
+
     }
 
     fun onPasswordChange(newPassword: String) {
-        _password.value = newPassword
+        _uiState.value = uiState.value.copy(
+            password = newPassword,
+            error = if (!ValidationUtils.isPasswordValid(newPassword)) "La contraseña debe contener al menos 6 caracteres" else null
+        )
+
     }
 
-    fun onNavigatedToHome() {
-        _navigateToHome.value = false // Reseteamos el estado después de navegar
-    }
+    //LOGIN
+    fun login() {
+        val state = _uiState.value ?: return
+        if(!ValidationUtils.isEmailValid(state.email) || !ValidationUtils.isPasswordValid(state.password)) {
+            _uiState.value = state.copy(error = "Error")
+            return
+        }
+        _uiState.value = state.copy(isLoading = true, error = null)
 
-    fun login(auth: FirebaseAuth) {
-        _loginState.value = LoginState(isLoading = true)
-        CoroutineScope(Dispatchers.IO).launch {
-            val user = User(email = _email.value.orEmpty(), password = _password.value.orEmpty())
+        viewModelScope.launch {
+            val user = User(email = _uiState.value.email, password = _uiState.value.password)
             val result = repository.login(user)
 
             if (result.isSuccess) {
-                _loginState.postValue(LoginState(success = true))
-                _navigateToHome.postValue(true)  // Navegar al inicio si es exitoso
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    success = true,
+                    navigateToHome = true
+                )
             } else {
-                _loginState.postValue(LoginState(error = result.exceptionOrNull()?.message))
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = result.exceptionOrNull()?.message
+                )
             }
         }
+    }
+
+    fun onNavigatedToHome() {
+        _uiState.value =
+            uiState.value.copy(navigateToHome = false) // Reseteamos el estado después de navegar
     }
 }
 
 data class LoginState(
-    val success: Boolean = false,
+    val email: String = "",
+    val password: String = "",
     val isLoading: Boolean = false,
-    val error: String? = null
+    val success: Boolean = false,
+    val error: String? = null,
+    val navigateToHome: Boolean = false
 )

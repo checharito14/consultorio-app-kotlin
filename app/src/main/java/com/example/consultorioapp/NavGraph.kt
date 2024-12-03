@@ -30,7 +30,6 @@ fun NavGraph(navController: NavHostController, auth: FirebaseAuth) {
             val viewModel = LoginViewModel(AuthRepository(auth))
             LoginScreen(
                 navController = navController,
-                auth,
                 viewModel = viewModel
             )
         }
@@ -44,7 +43,6 @@ fun NavGraph(navController: NavHostController, auth: FirebaseAuth) {
             // Pasa el ViewModel a la pantalla
             SignupScreen(
                 navController = navController,
-                auth = auth,
                 viewModel = viewModel
             )
         }

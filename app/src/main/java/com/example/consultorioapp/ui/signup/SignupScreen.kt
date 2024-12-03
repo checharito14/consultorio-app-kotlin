@@ -1,6 +1,7 @@
 package com.example.consultorioapp.ui.signup
 
 
+import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -10,12 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.toSize
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.consultorioapp.ui.components.ConsultorioHeader
 import com.example.consultorioapp.ui.components.CustomTextField
@@ -47,25 +52,9 @@ import com.google.firebase.auth.FirebaseAuth
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SignupScreen(navController: NavController, auth: FirebaseAuth, viewModel: SignupViewModel) {
+fun SignupScreen(navController: NavController, viewModel: SignupViewModel) {
 
-    val especialidades = listOf(
-        "Cardiología",
-        "Dermatología",
-        "Ginecología",
-        "Pediatría",
-        "Neurología",
-        "Ortopedia",
-        "Oftalmología",
-        "Psiquiatría"
-    )
-
-    val email: String by viewModel.email.observeAsState(initial = "")
-    val password: String by viewModel.password.observeAsState(initial = "")
-    val name: String by viewModel.name.observeAsState(initial = "")
-    val especialidad: String by viewModel.especialidad.observeAsState(initial = "Selecciona una especialidad")
-
-    val navigateToHome: Boolean by viewModel.navigateToHome.observeAsState(initial = false)
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -73,11 +62,6 @@ fun SignupScreen(navController: NavController, auth: FirebaseAuth, viewModel: Si
             .background(MaterialTheme.colorScheme.background)
             .padding(26.dp),
     ) {
-        if (navigateToHome) {
-            // Navegamos a la pantalla principal y reseteamos el estado
-            navController.navigate("home")
-            viewModel.onNavigatedToHome() // Resetea el estado en el ViewModel
-        }
         ConsultorioHeader()
         HorizontalDivider(
             modifier = Modifier
@@ -92,26 +76,20 @@ fun SignupScreen(navController: NavController, auth: FirebaseAuth, viewModel: Si
             color = Color.Black,
         )
         CustomTextField(
-            value = name,
+            value = uiState.name,
             onTextFieldChanged = viewModel::onNameChange,
             label = "Nombre completo"
         )
         Spacer(modifier = Modifier.height(30.dp))
-        EspecialidadDropdown(
-            especialidades = especialidades,
-            selectedEspecialidad = especialidad,
-            onEspecialidadSelected = viewModel::onEspecialidadChange
-        )
-        Spacer(modifier = Modifier.height(30.dp))
         //Email
         CustomTextField(
-            value = email,
+            value = uiState.email,
             onTextFieldChanged = viewModel::onEmailChange,
             label = "Correo electronico"
         )
         Spacer(modifier = Modifier.height(32.dp))
         CustomTextField(
-            value = password,
+            value = uiState.password,
             onTextFieldChanged = viewModel::onPasswordChange,
             label = "Contraseña",
             isPassword = true
@@ -124,59 +102,83 @@ fun SignupScreen(navController: NavController, auth: FirebaseAuth, viewModel: Si
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(0.dp)
         ) {
-            Text("Registrarse")
-        }
-    }
-}
-@Composable
-fun EspecialidadDropdown(
-    especialidades: List<String>,
-    selectedEspecialidad: String,
-    onEspecialidadSelected: (String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-    var textFieldSize by remember { mutableStateOf(Size.Zero) }
-
-    val icon = if (expanded) {
-        Icons.Filled.KeyboardArrowUp
-    } else {
-        Icons.Filled.KeyboardArrowDown
-    }
-
-    // Usar un Box para manejar la clicabilidad manualmente
-    Box(modifier = Modifier.fillMaxWidth()) {
-        OutlinedTextField(
-            value = selectedEspecialidad,
-            onValueChange = {},
-            modifier = Modifier
-                .fillMaxWidth()
-                .onGloballyPositioned { coordinates ->
-                    textFieldSize = coordinates.size.toSize()
-                }
-                .clickable{ expanded = !expanded },  // Hacer clic sin cambiar el color
-            label = { Text(text = "Selecciona tu especialidad") },
-            trailingIcon = {
-                Icon(icon, "", Modifier.clickable { expanded = !expanded })
-            }
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.width(with(LocalDensity.current) { textFieldSize.width.toDp() }),
-        ) {
-            especialidades.forEach { especialidad ->
-                DropdownMenuItem(
-                    onClick = {
-                        onEspecialidadSelected(especialidad)
-                        expanded = false
-                    },
-                    text = {
-                        Text(text = especialidad)
-                    }
+            if (uiState.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
+            Text("Registrarse")
+        }
+
+        if (uiState.error != null) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = uiState.error ?: "",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    }
+    LaunchedEffect(uiState.navigateToHome) {
+        if(uiState.navigateToHome) {
+            navController.navigate("home") {
+                popUpTo("signup") { inclusive = true }
+            }
+            viewModel.onNavigatedToHome()
         }
     }
 }
+
+//@Composable
+//fun EspecialidadDropdown(
+//    especialidades: List<String>,
+//    selectedEspecialidad: String,
+//    onEspecialidadSelected: (String) -> Unit
+//) {
+//    var expanded by remember { mutableStateOf(false) }
+//    var textFieldSize by remember { mutableStateOf(Size.Zero) }
+//
+//    val icon = if (expanded) {
+//        Icons.Filled.KeyboardArrowUp
+//    } else {
+//        Icons.Filled.KeyboardArrowDown
+//    }
+//
+//    // Usar un Box para manejar la clicabilidad manualmente
+//    Box(modifier = Modifier.fillMaxWidth()) {
+//        OutlinedTextField(
+//            value = selectedEspecialidad,
+//            onValueChange = {},
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .onGloballyPositioned { coordinates ->
+//                    textFieldSize = coordinates.size.toSize()
+//                }
+//                .clickable{ expanded = !expanded },  // Hacer clic sin cambiar el color
+//            label = { Text(text = "Selecciona tu especialidad") },
+//            trailingIcon = {
+//                Icon(icon, "", Modifier.clickable { expanded = !expanded })
+//            }
+//        )
+//
+//        DropdownMenu(
+//            expanded = expanded,
+//            onDismissRequest = { expanded = false },
+//            modifier = Modifier.width(with(LocalDensity.current) { textFieldSize.width.toDp() }),
+//        ) {
+//            especialidades.forEach { especialidad ->
+//                DropdownMenuItem(
+//                    onClick = {
+//                        onEspecialidadSelected(especialidad)
+//                        expanded = false
+//                    },
+//                    text = {
+//                        Text(text = especialidad)
+//                    }
+//                )
+//            }
+//        }
+//    }
+//}
 
