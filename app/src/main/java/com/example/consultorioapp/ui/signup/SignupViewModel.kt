@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.consultorioapp.ValidationUtils
 import com.example.consultorioapp.data.models.User
 import com.example.consultorioapp.data.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -29,15 +30,24 @@ class SignupViewModel(
     val uiState: StateFlow<SignupState> = _uiState.asStateFlow()
 
     fun onEmailChange(newEmail: String) {
-        _uiState.value = uiState.value.copy(email = newEmail)
+        _uiState.value = uiState.value.copy(
+            email = newEmail,
+            emailError = if (ValidationUtils.isEmailValid(newEmail)) null else "Ingresa un correo válido *"
+        )
     }
 
     fun onPasswordChange(newPassword: String) {
-        _uiState.value = uiState.value.copy(password = newPassword)
+        _uiState.value = uiState.value.copy(
+            password = newPassword,
+            passwordError = if (ValidationUtils.isEmailValid(newPassword)) null else "La contraseña debe contener al menos 6 caracteres *"
+        )
     }
 
     fun onNameChange(newName: String) {
-        _uiState.value = uiState.value.copy(name = newName)
+        _uiState.value = uiState.value.copy(
+            name = newName,
+            nameError = if (ValidationUtils.isNotEmpty(newName)) null else "Ingresa un nombre válido *"
+        )
     }
 
     fun onNavigatedToHome() {
@@ -47,13 +57,30 @@ class SignupViewModel(
 
 
     fun register() {
+        if (!ValidationUtils.isNotEmpty(uiState.value.name)) {
+            _uiState.value = _uiState.value.copy(nameError = "Ingresa tu nombre *")
+            return
+        }
+        if (!ValidationUtils.isEmailValid(_uiState.value.email)) {
+            _uiState.value = _uiState.value.copy(emailError = "Ingresa un correo válido *")
+            return
+        }
+        if (!ValidationUtils.isPasswordValid(uiState.value.password)) {
+            _uiState.value =
+                _uiState.value.copy(passwordError = "La contraseña debe contener al menos 6 caracteres *")
+            return
+        }
+
         val user = User(
             name = _uiState.value.name,
             email = _uiState.value.email,
             password = _uiState.value.password
         )
 
-        _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+        _uiState.value = _uiState.value.copy(
+            isLoading = true, passwordError = null,
+            emailError = null, nameError = null
+        )
 
         viewModelScope.launch {
             val result = authRepository.signup(user)
@@ -64,8 +91,8 @@ class SignupViewModel(
                     firestore.collection("usuarios").document(userId).set(
                         mapOf(
                             "id" to userId,
-                            "name" to user.name,
-                            "email" to user.email,
+                            "name" to user.name.uppercase(),
+                            "email" to user.email.trim(),
                         )
                     ).addOnSuccessListener {
                         Log.d("Usario", "Creado")
@@ -73,6 +100,11 @@ class SignupViewModel(
                         Log.d("Usuario", "ERROR")
                     }
                 }
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    success = true,
+                    navigateToHome = true
+                )
             }
         }
     }
@@ -85,7 +117,9 @@ data class SignupState(
     val password: String = "",
     val isLoading: Boolean = false,
     val success: Boolean = false,
-    val error: String? = null,
+    val emailError: String? = null,
+    val passwordError: String? = null,
+    val nameError: String? = null,
     val navigateToHome: Boolean = false
 )
 

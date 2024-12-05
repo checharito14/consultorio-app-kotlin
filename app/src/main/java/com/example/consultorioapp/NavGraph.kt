@@ -1,16 +1,16 @@
 package com.example.consultorioapp
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.internal.composableLambda
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.consultorioapp.data.repository.AuthRepository
-import com.example.consultorioapp.ui.HomePortrait
+import com.example.consultorioapp.ui.dashboard.HomeScreen
 import com.example.consultorioapp.ui.InitialScreen
+import com.example.consultorioapp.ui.citas.CitasScreen
 import com.example.consultorioapp.ui.login.LoginScreen
 import com.example.consultorioapp.ui.login.LoginViewModel
+import com.example.consultorioapp.ui.pacientes.PacientesScreen
 import com.example.consultorioapp.ui.signup.SignupScreen
 import com.example.consultorioapp.ui.signup.SignupViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -47,7 +47,8 @@ fun NavGraph(navController: NavHostController, auth: FirebaseAuth) {
             )
         }
         composable("home") {
-            HomePortrait()
+            HomeScreen()
         }
+
     }
 }

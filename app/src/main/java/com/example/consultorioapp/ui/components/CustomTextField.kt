@@ -12,6 +12,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -33,9 +34,16 @@ fun CustomTextField(
     OutlinedTextField(
         value = value,
         onValueChange = { onTextFieldChanged(it) },
-        modifier = Modifier.fillMaxWidth(),
-//            .height(50.dp),
-        label = { Text(label, style = TextStyle(fontSize = 14.sp)) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+        label = {
+            Text(
+                label,
+                style = TextStyle(fontSize = 14.sp),
+                color = if (error != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground
+            )
+        },
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = KeyboardOptions.Default.copy(
             keyboardType = if (isPassword) KeyboardType.Email else KeyboardType.Password,  // Configura el teclado para email
@@ -43,19 +51,20 @@ fun CustomTextField(
         singleLine = true,
         maxLines = 1,
         colors = TextFieldDefaults.outlinedTextFieldColors(
-            unfocusedBorderColor = if(error != null) MaterialTheme.colorScheme.errorContainer else  MaterialTheme.colorScheme.onBackground ,
-            focusedBorderColor = if(error != null) MaterialTheme.colorScheme.errorContainer else  MaterialTheme.colorScheme.secondaryContainer,
+            unfocusedBorderColor = if (error != null) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.onBackground,
+            focusedBorderColor = if (error != null) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.secondaryContainer,
         ),
         textStyle = TextStyle(fontSize = 12.sp)
     )
-    if(error != null) {
-        Spacer(modifier = Modifier.height(6.dp))
+    if (error != null) {
+        Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = error ?: "",
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.Start
+            textAlign = TextAlign.Start,
+            fontSize = 10.sp
         )
     }
 }

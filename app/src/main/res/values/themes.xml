@@ -2,7 +2,7 @@
 <resources>
     <style name="Theme.MySplashScreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/background</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_logo_splash</item>
         <item name="postSplashScreenTheme">@style/Theme.MySplashScreen</item>
     </style>
     <style name="Theme.ConsultorioApp" parent="android:Theme.Material.Light.NoActionBar" />

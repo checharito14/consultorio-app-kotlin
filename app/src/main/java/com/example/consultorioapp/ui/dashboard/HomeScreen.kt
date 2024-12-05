@@ -1,73 +1,59 @@
 package com.example.consultorioapp.ui.dashboard
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import com.example.consultorioapp.ui.pacientes.PacientesScreen
 
 @Composable
-fun HomePortrait() {
+fun HomeScreen() {
+    var selectedIndex by remember { mutableStateOf(0) }
+
     Scaffold(
-        bottomBar = { ConsultorioBottomNavigation() }
-    ) { padding ->
-        HomeScreen(Modifier.padding(padding))
+        modifier = Modifier.fillMaxSize(),
+        bottomBar = {
+            BottomNavigationBar(
+                selectedIndex = selectedIndex,
+                onItemSelected = { selectedIndex = it })
+        }
+    ) { innerPadding ->
+        ContentScreen(
+            modifier = Modifier.padding(innerPadding),
+            selectedIndex = selectedIndex
+        )
     }
+}
 
+
+@Composable
+fun ContentScreen(modifier: Modifier = Modifier, selectedIndex: Int) {
+    when (selectedIndex) {
+        0 -> HomePage()
+        1 -> PacientesScreen()
+    }
 }
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
-//    Column(modifier.Arrangment(Alignment.Center)) {
-//        Text("hola")
-//    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ConsultorioBottomNavigation(modifier: Modifier = Modifier) {
-    NavigationBar(
-        modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.surfaceVariant
+fun HomePage() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null
-                )
-            },
-            label = {
-                Text("Pacientes")
-            },
-            selected = true,
-            onClick = { }
-        )
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.DateRange,
-                    contentDescription = null
-                )
-            },
-            label = {
-                Text("Citas")
-            },
-            selected = false,
-            onClick = { }
-        )
+        Text("hola")
+//        TODO("USAR API CONTENT() DE LA APP MYSOOTHE")
     }
 }
 
-@Composable
-fun Content(modifier: Modifier = Modifier) {
 
-}

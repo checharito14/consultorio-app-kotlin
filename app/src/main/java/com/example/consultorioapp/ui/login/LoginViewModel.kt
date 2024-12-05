@@ -18,18 +18,15 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
     fun onEmailChange(newEmail: String) {
         _uiState.value = uiState.value.copy(
             email = newEmail,
-            emailError = if (ValidationUtils.isEmailValid(newEmail)) null else "Ingresa un correo valido"
+            emailError = if (ValidationUtils.isEmailValid(newEmail)) null else "Ingresa un correo válido *"
         )
-
-
     }
 
     fun onPasswordChange(newPassword: String) {
         _uiState.value = uiState.value.copy(
             password = newPassword,
-            passwordError = if (ValidationUtils.isPasswordValid(newPassword)) null else "La contraseña debe contener al menos 6 caracteres"
+//            passwordError = if (ValidationUtils.isPasswordValid(newPassword)) null else "La contraseña debe contener al menos 6 caracteres"
         )
-
     }
 
     //LOGIN
@@ -37,12 +34,12 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
         val user = User(email = _uiState.value.email, password = _uiState.value.password)
 
         if (!ValidationUtils.isEmailValid(_uiState.value.email)) {
-            _uiState.value = _uiState.value.copy(emailError = "Ingresa un correo valido")
+            _uiState.value = _uiState.value.copy(emailError = "Ingresa un correo válido *")
             return
         }
         if (!ValidationUtils.isPasswordValid(uiState.value.password)) {
             _uiState.value =
-                _uiState.value.copy(passwordError = "La contraseña debe contener al menos 6 caracteres")
+                _uiState.value.copy(passwordError = "La contraseña debe contener al menos 6 caracteres *")
             return
         }
         _uiState.value = _uiState.value.copy(
@@ -64,7 +61,7 @@ class LoginViewModel(private val repository: AuthRepository) : ViewModel() {
             } else {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Usuario no encontrado",
+                    error = "La contraseña o el email son incorrectos",
                     password = "",
                 )
             }

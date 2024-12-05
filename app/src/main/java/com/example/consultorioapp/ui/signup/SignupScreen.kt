@@ -60,39 +60,44 @@ fun SignupScreen(navController: NavController, viewModel: SignupViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(26.dp),
+            .padding(16.dp)
+            .padding(horizontal = 13.dp),
     ) {
         ConsultorioHeader()
         HorizontalDivider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 18.dp),
+                .padding(top = 18.dp, bottom = 24.dp),
             thickness = 2.dp
         )
         Text(
             "Crear cuenta",
             fontSize = 32.sp,
+            modifier = Modifier.padding(vertical = 18.dp),
             fontWeight = FontWeight.Bold,
             color = Color.Black,
         )
         CustomTextField(
             value = uiState.name,
             onTextFieldChanged = viewModel::onNameChange,
-            label = "Nombre completo"
+            label = "Nombre completo",
+            error = uiState.nameError ?: null
         )
         Spacer(modifier = Modifier.height(30.dp))
         //Email
         CustomTextField(
             value = uiState.email,
             onTextFieldChanged = viewModel::onEmailChange,
-            label = "Correo electronico"
+            label = "Correo electrónico",
+            error = uiState.emailError ?: null
         )
         Spacer(modifier = Modifier.height(32.dp))
         CustomTextField(
             value = uiState.password,
             onTextFieldChanged = viewModel::onPasswordChange,
             label = "Contraseña",
-            isPassword = true
+            isPassword = true,
+            error = uiState.passwordError ?: null
         )
         Spacer(modifier = Modifier.height(20.dp))
         Button(
@@ -100,6 +105,7 @@ fun SignupScreen(navController: NavController, viewModel: SignupViewModel) {
                 viewModel.register()
             },
             modifier = Modifier.fillMaxWidth(),
+            enabled = !uiState.isLoading,
             shape = RoundedCornerShape(0.dp)
         ) {
             if (uiState.isLoading) {
@@ -107,21 +113,13 @@ fun SignupScreen(navController: NavController, viewModel: SignupViewModel) {
                     modifier = Modifier.size(24.dp),
                     color = MaterialTheme.colorScheme.primary
                 )
+            } else {
+                Text("Registrarse")
             }
-            Text("Registrarse")
-        }
-
-        if (uiState.error != null) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = uiState.error ?: "",
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium
-            )
         }
     }
     LaunchedEffect(uiState.navigateToHome) {
-        if(uiState.navigateToHome) {
+        if (uiState.navigateToHome) {
             navController.navigate("home") {
                 popUpTo("signup") { inclusive = true }
             }

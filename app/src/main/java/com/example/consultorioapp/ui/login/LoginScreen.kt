@@ -59,14 +59,14 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp),
+            .padding(16.dp).padding( horizontal = 13.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         ConsultorioHeader()
         HorizontalDivider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 18.dp),
+                .padding(top = 18.dp, bottom = 24.dp ),
             thickness = 2.dp
         )
         Text(
@@ -82,7 +82,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
         CustomTextField(
             value = uiState.email,
             onTextFieldChanged = viewModel::onEmailChange,
-            label = "Correo electronico",
+            label = "Correo electrónico",
             error = uiState.emailError ?: null
         )
         Spacer(modifier = Modifier.height(32.dp))
@@ -111,7 +111,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
             if (uiState.isLoading) {
                 CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.primary)
             } else {
-                Text("Inicia sesion")
+                Text("Inicia sesión")
             }
         }
 
@@ -120,7 +120,8 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
             Text(
                 text = uiState.error ?: "",
                 color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 10.sp
             )
         }
     }

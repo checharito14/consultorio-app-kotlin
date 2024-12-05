@@ -51,7 +51,7 @@ fun InitialScreen(navigateToLogin: () -> Unit = {}, navigateToSignUp: () -> Unit
         ConsultorioHeader()
         Spacer(modifier = Modifier.weight(1f))
         Text(
-            "Gestion medica",
+            "Gestión  médica ",
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.displayLarge
         )
@@ -104,7 +104,7 @@ fun CustomButton(modifier: Modifier = Modifier) {
             contentAlignment = Alignment.CenterStart
         ) {
             Text(
-                "Inicia sesion",
+                "Inicia sesión",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
             )
