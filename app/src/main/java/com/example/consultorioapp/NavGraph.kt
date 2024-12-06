@@ -7,10 +7,8 @@ import androidx.navigation.compose.composable
 import com.example.consultorioapp.data.repository.AuthRepository
 import com.example.consultorioapp.ui.dashboard.HomeScreen
 import com.example.consultorioapp.ui.InitialScreen
-import com.example.consultorioapp.ui.citas.CitasScreen
 import com.example.consultorioapp.ui.login.LoginScreen
 import com.example.consultorioapp.ui.login.LoginViewModel
-import com.example.consultorioapp.ui.pacientes.PacientesScreen
 import com.example.consultorioapp.ui.signup.SignupScreen
 import com.example.consultorioapp.ui.signup.SignupViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -47,7 +45,8 @@ fun NavGraph(navController: NavHostController, auth: FirebaseAuth) {
             )
         }
         composable("home") {
-            HomeScreen()
+            val userId = FirebaseAuth.getInstance().currentUser?.uid
+            HomeScreen(userId)
         }
 
     }

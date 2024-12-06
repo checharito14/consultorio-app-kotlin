@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,7 +16,7 @@ import androidx.compose.ui.Modifier
 import com.example.consultorioapp.ui.pacientes.PacientesScreen
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(userId: String?) {
     var selectedIndex by remember { mutableStateOf(0) }
 
     Scaffold(
@@ -30,16 +29,17 @@ fun HomeScreen() {
     ) { innerPadding ->
         ContentScreen(
             modifier = Modifier.padding(innerPadding),
-            selectedIndex = selectedIndex
+            selectedIndex = selectedIndex,
+            userId = userId
         )
     }
 }
 
 
 @Composable
-fun ContentScreen(modifier: Modifier = Modifier, selectedIndex: Int) {
+fun ContentScreen(modifier: Modifier = Modifier, selectedIndex: Int, userId: String?) {
     when (selectedIndex) {
-        0 -> HomePage()
+        0 -> HomePage(userId)
         1 -> PacientesScreen()
     }
 }

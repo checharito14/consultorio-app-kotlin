@@ -1,8 +1,10 @@
 package com.example.consultorioapp.ui.components
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -29,14 +31,15 @@ fun CustomTextField(
     onTextFieldChanged: (String) -> Unit,
     label: String,
     isPassword: Boolean = false,
-    error: String? = null
+    error: String? = null,
+    isInt: Boolean = false
 ) {
     OutlinedTextField(
         value = value,
         onValueChange = { onTextFieldChanged(it) },
         modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
+            .fillMaxWidth(),
+//            .height(50.dp),
         label = {
             Text(
                 label,
@@ -46,7 +49,7 @@ fun CustomTextField(
         },
         visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = KeyboardOptions.Default.copy(
-            keyboardType = if (isPassword) KeyboardType.Email else KeyboardType.Password,  // Configura el teclado para email
+            keyboardType = if (isPassword) KeyboardType.Email else if (isInt) KeyboardType.Number else KeyboardType.Password
         ),
         singleLine = true,
         maxLines = 1,
@@ -67,4 +70,5 @@ fun CustomTextField(
             fontSize = 10.sp
         )
     }
+
 }
