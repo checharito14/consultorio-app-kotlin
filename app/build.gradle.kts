@@ -6,6 +6,9 @@ plugins {
     //Firebase
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    id("com.google.dagger.hilt.android") // Agrega Hilt si usarás inyección de dependencias
+    id("kotlin-kapt")
+
 }
 
 android {
@@ -30,6 +33,7 @@ android {
                 "proguard-rules.pro"
             )
         }
+
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -50,16 +54,22 @@ dependencies {
     implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.firebase:firebase-auth")
     implementation ("com.google.firebase:firebase-firestore-ktx")
+    //hilt
+    implementation("com.google.dagger:hilt-android:2.51.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+//    implementation (libs.androidx.hilt.lifecycle.viewmodel)
+//    implementation (libs.hilt.lifecycle.viewmodel)
 
     //splash screen
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.androidx.runtime.livedata)
 
-    val nav_version = "2.8.4"
 
-    implementation("androidx.navigation:navigation-compose:$nav_version")
-    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+    implementation(libs.androidx.navigation.compose)
+    implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -75,4 +85,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+kapt {
+    correctErrorTypes = true
 }

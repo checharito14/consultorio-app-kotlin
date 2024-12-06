@@ -19,23 +19,50 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.consultorioapp.data.models.Paciente
 import com.example.consultorioapp.ui.App
 import com.example.consultorioapp.ui.components.CustomTextField
 import com.example.consultorioapp.ui.theme.AppTheme
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.UUID
 
 @Composable
-fun AddPacienteDialog(showDialog: Boolean, onDismiss: () -> Unit, onConfirm: () -> Unit) {
+fun AddPacienteDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onPacienteAgregado: (Paciente) -> Unit
+) {
+
+    var nombre by rememberSaveable { mutableStateOf("") }
+    var edad by rememberSaveable { mutableStateOf("") }
 
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { onDismiss() },
             confirmButton = {
-                TextButton(onClick = { onConfirm() }) {
+                TextButton(onClick = {
+                    if (nombre.isNotBlank() && edad.isNotBlank()) {
+                        val paciente = Paciente(
+                            id = UUID.randomUUID().toString(),
+                            nombre = nombre,
+                            edad = edad.toInt(),
+                            fechaRegistro = SimpleDateFormat("dd/MM/yyyy").format(Date())
+                        )
+                        onPacienteAgregado(paciente)
+                        onDismiss()
+                    }
+                }) {
                     Text(text = "Guardar", color = MaterialTheme.colorScheme.primary)
                 }
             },
@@ -55,7 +82,12 @@ fun AddPacienteDialog(showDialog: Boolean, onDismiss: () -> Unit, onConfirm: () 
                 }
             },
             text = {
-                DialogForm()
+                DialogForm(
+                    nombre = nombre,
+                    onNombreChange = { nombre = it },
+                    edad = edad,
+                    onEdadChange = { edad = it }
+                )
             },
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             shape = MaterialTheme.shapes.small// Fondo del diálogo
@@ -65,7 +97,13 @@ fun AddPacienteDialog(showDialog: Boolean, onDismiss: () -> Unit, onConfirm: () 
 }
 
 @Composable
-fun DialogForm(modifier: Modifier = Modifier) {
+fun DialogForm(
+    nombre: String,
+    onNombreChange: (String) -> Unit,
+    edad: String,
+    onEdadChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     HorizontalDivider(
         modifier = Modifier
             .padding(bottom = 18.dp)
@@ -75,8 +113,8 @@ fun DialogForm(modifier: Modifier = Modifier) {
     Column(modifier = Modifier.padding(16.dp)) {
 
         CustomTextField(
-            value = "",
-            onTextFieldChanged = { },
+            value = nombre,
+            onTextFieldChanged = onNombreChange,
             label = "Nombre"
         )
 
@@ -84,8 +122,8 @@ fun DialogForm(modifier: Modifier = Modifier) {
 
         // Campo de texto para la edad
         CustomTextField(
-            value = "",
-            onTextFieldChanged = { },
+            value = edad,
+            onTextFieldChanged = onEdadChange,
             label = "Edad",
             isInt = true
         )

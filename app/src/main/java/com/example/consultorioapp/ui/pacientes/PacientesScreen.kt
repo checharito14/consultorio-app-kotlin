@@ -22,6 +22,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,28 +36,48 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.consultorioapp.R
+import com.example.consultorioapp.data.models.Paciente
 import com.example.consultorioapp.ui.theme.AppTheme
 
 @Composable
-fun PacientesScreen(modifier: Modifier = Modifier) {
+fun PacientesScreen(
+    userId: String?,  // Asegúrate de pasar el userId aquí
+    modifier: Modifier = Modifier
+) {
+    val pacientesViewModel : PacientesViewModel = hiltViewModel()
+    val pacientes by pacientesViewModel.pacientes.collectAsState()
+
+    // Fetch pacientes si se tiene un userId
+    userId?.let {
+        pacientesViewModel.fetchPacientes(it)
+    }
+
     Column(
         modifier
             .verticalScroll(rememberScrollState())
             .padding(30.dp)
             .paddingFromBaseline(top = 70.dp)
     ) {
-        PacienteSection {
-            PacienteCard()
+        // Llamada a PacienteSection
+        PacienteSection(
+            userId = userId  // Pasamos el userId aquí
+        ) {
+            // Este es el bloque content que se pasa a PacienteSection
+            pacientes.forEach { paciente ->
+                PacienteCard(paciente)
+            }
         }
     }
 }
 
-
 @Composable
 fun PacienteSection(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    viewModel: PacientesViewModel = hiltViewModel(),
+    userId: String?,  // Recibimos el userId aquí
+    content: @Composable () -> Unit, // El contenido debe ser pasado aquí
 ) {
     Column {
         Row {
@@ -65,15 +86,26 @@ fun PacienteSection(
                 style = MaterialTheme.typography.displaySmall,
                 modifier = Modifier.weight(1f)
             )
-            AgregarPacienteButton()
+            // Botón de agregar paciente
+            AgregarPacienteButton(
+                onPacienteAgregado = { paciente ->
+                    userId?.let {
+                        viewModel.addPaciente(it, paciente)
+                    }
+                }
+            )
         }
 
+        // Ejecutamos el contenido que pasamos a este Composable
         content()
     }
 }
 
 @Composable
-fun PacienteCard(modifier: Modifier = Modifier) {
+fun PacienteCard(
+    paciente: Paciente,
+    modifier: Modifier = Modifier
+) {
     Surface(
         modifier = modifier.padding(top = 30.dp),
         shape = MaterialTheme.shapes.extraSmall,
@@ -88,22 +120,15 @@ fun PacienteCard(modifier: Modifier = Modifier) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ab1_inversions),
-                    contentDescription = "Paciente",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(50.dp)
-                        .clip(CircleShape)
-                )
                 Column {
                     Text(
-                        text = "Cesar Rice", style = MaterialTheme.typography.bodyLarge,
+                        text = paciente.nombre, style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "Edad: ", style = MaterialTheme.typography.bodyMedium,
+                        text = "Edad: ${paciente.edad}",
+                        style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
@@ -116,8 +141,8 @@ fun PacienteCard(modifier: Modifier = Modifier) {
                 thickness = 2.dp
             )
             Text(
-                text = "Ultima cita: ",
-                style = MaterialTheme.typography.bodyMedium,
+                text = "Fecha de registro: ${paciente.fechaRegistro}",
+                style = MaterialTheme.typography.bodySmall,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
             Row(
@@ -131,7 +156,7 @@ fun PacienteCard(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun AgregarPacienteButton(modifier: Modifier = Modifier) {
+fun AgregarPacienteButton(modifier: Modifier = Modifier, onPacienteAgregado: (Paciente) -> Unit) {
     var showDialog by rememberSaveable { mutableStateOf(false) }
     OutlinedButton(
         onClick = { showDialog = true },
@@ -143,9 +168,9 @@ fun AgregarPacienteButton(modifier: Modifier = Modifier) {
             contentColor = MaterialTheme.colorScheme.primary,
         )
     ) {
-        Text("Agegar", style = MaterialTheme.typography.bodyMedium)
+        Text("Agregar", style = MaterialTheme.typography.bodyMedium)
     }
-    AddPacienteDialog(showDialog, { showDialog = false }, {})
+    AddPacienteDialog(showDialog, { showDialog = false }, onPacienteAgregado = onPacienteAgregado)
 }
 
 @Composable
@@ -183,10 +208,4 @@ fun DeleteButton(modifier: Modifier) {
 }
 
 
-@Preview(showBackground = true)
-@Composable
-private fun PacienteCardPreview() {
-    AppTheme {
-        PacienteCard()
-    }
-}
+

@@ -39,8 +39,8 @@ fun HomeScreen(userId: String?) {
 @Composable
 fun ContentScreen(modifier: Modifier = Modifier, selectedIndex: Int, userId: String?) {
     when (selectedIndex) {
-        0 -> HomePage(userId)
-        1 -> PacientesScreen()
+        0 -> HomePage()
+        1 -> PacientesScreen(userId = userId)
     }
 }
 
