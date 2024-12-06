@@ -26,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -84,7 +85,11 @@ fun AddPacienteDialog(
             text = {
                 DialogForm(
                     nombre = nombre,
-                    onNombreChange = { nombre = it },
+                    onNombreChange = {
+                        nombre = it.split(" ").joinToString(" ") { palabra ->
+                            palabra.lowercase().replaceFirstChar { it.uppercase() }
+                        }
+                    },
                     edad = edad,
                     onEdadChange = { edad = it }
                 )
@@ -115,7 +120,7 @@ fun DialogForm(
         CustomTextField(
             value = nombre,
             onTextFieldChanged = onNombreChange,
-            label = "Nombre"
+            label = "Nombre completo"
         )
 
         Spacer(modifier = Modifier.height(10.dp))

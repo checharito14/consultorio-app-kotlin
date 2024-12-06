@@ -13,11 +13,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class PacientesViewModel @Inject constructor(private val repository: PacientesRepository) : ViewModel() {
+class PacientesViewModel @Inject constructor(private val userId: String, private val repository: PacientesRepository) : ViewModel() {
     private val _pacientes = MutableStateFlow<List<Paciente>>(emptyList())
     val pacientes: StateFlow<List<Paciente>> = _pacientes
 
-    fun fetchPacientes(userId: String) {
+    fun fetchPacientes() {
         viewModelScope.launch {
             val pacientesList = repository.getPacientes(userId)
             Log.d("pacientes", "$pacientesList")
@@ -25,24 +25,24 @@ class PacientesViewModel @Inject constructor(private val repository: PacientesRe
         }
     }
 
-    fun addPaciente(userId: String, paciente : Paciente) {
+    fun addPaciente(paciente : Paciente) {
         viewModelScope.launch {
            repository.addPaciente(userId, paciente)
-            fetchPacientes(userId)
+            fetchPacientes()
         }
     }
 
-    fun updatePaciente(userId: String, paciente: Paciente) {
+    fun updatePaciente(paciente: Paciente) {
         viewModelScope.launch {
             repository.updatePaciente(userId, paciente)
-            fetchPacientes(userId)
+            fetchPacientes()
         }
     }
 
-    fun deletePaciente(userId: String, paciente: Paciente) {
+    fun deletePaciente(paciente: String) {
         viewModelScope.launch {
             repository.deletePaciente(userId, paciente)
-            fetchPacientes(userId)
+            fetchPacientes()
         }
     }
 

@@ -27,8 +27,8 @@ class PacientesRepository(private val firestore: FirebaseFirestore) {
             .document(paciente.id).set(paciente).await()
     }
 
-    suspend fun deletePaciente(userId: String, pacienteId: Paciente) {
+    suspend fun deletePaciente(userId: String, pacienteId: String) {
         firestore.collection("usuarios").document(userId).collection("pacientes")
-            .document(pacienteId.id).delete().await()
+            .document(pacienteId).delete().await()
     }
 }
