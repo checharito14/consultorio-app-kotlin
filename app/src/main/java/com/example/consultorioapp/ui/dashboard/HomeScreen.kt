@@ -13,10 +13,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
+import androidx.navigation.navOptions
+import com.example.consultorioapp.ui.citas.CitasScreen
+import com.example.consultorioapp.ui.components.LogoutDialog
 import com.example.consultorioapp.ui.pacientes.PacientesScreen
+import kotlinx.coroutines.delay
 
 @Composable
-fun HomeScreen(userId: String?) {
+fun HomeScreen(navController: NavController, userId: String?) {
     var selectedIndex by remember { mutableStateOf(0) }
 
     Scaffold(
@@ -30,18 +35,45 @@ fun HomeScreen(userId: String?) {
         ContentScreen(
             modifier = Modifier.padding(innerPadding),
             selectedIndex = selectedIndex,
-            userId = userId
+            userId = userId,
+            onLogout = {
+                navController.navigate("initial")
+            },
+            navController = navController
         )
     }
 }
 
 
 @Composable
-fun ContentScreen(modifier: Modifier = Modifier, selectedIndex: Int, userId: String?) {
+fun ContentScreen(
+    modifier: Modifier = Modifier,
+    selectedIndex: Int,
+    userId: String?,
+    onLogout: () -> Unit,
+    navController: NavController
+) {
+    var showDialog by remember { mutableStateOf(false) }
     when (selectedIndex) {
         0 -> HomePage()
         1 -> PacientesScreen(userId = userId)
+        2 -> CitasScreen()
+        3 -> {
+            showDialog = true
+        }
     }
+
+    LogoutDialog(
+        showDialog = showDialog,
+        onDismiss = { navController.navigate("home") },
+        title = "Cerrar Sesión",
+        text = "¿Estas seguro que quieres cerrar sesión?",
+        onClick = {
+            onLogout()
+            showDialog = false
+        }
+    )
+
 }
 
 @Composable
@@ -52,7 +84,6 @@ fun HomePage() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("hola")
-//        TODO("USAR API CONTENT() DE LA APP MYSOOTHE")
     }
 }
 

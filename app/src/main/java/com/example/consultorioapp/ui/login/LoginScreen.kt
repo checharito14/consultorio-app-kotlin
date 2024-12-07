@@ -102,8 +102,8 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
         Spacer(modifier = Modifier.height(18.dp))
         Button(
             onClick = {
-                viewModel.login()
-//                navController.navigate("home")
+//                viewModel.login()
+                navController.navigate("home")
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = !uiState.isLoading,

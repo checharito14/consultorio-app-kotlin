@@ -3,11 +3,17 @@ package com.example.consultorioapp.ui.pacientes
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -18,6 +24,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,10 +42,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.consultorioapp.data.models.Paciente
+import com.example.consultorioapp.ui.components.LogoutDialog
 
 @Composable
 fun PacientesScreen(
-    userId: String?,  // Asegúrate de pasar el userId aquí
+    userId: String?,
     modifier: Modifier = Modifier
 ) {
     val pacientesViewModel: PacientesViewModel = hiltViewModel()
@@ -48,45 +57,47 @@ fun PacientesScreen(
 
     Column(
         modifier
-            .verticalScroll(rememberScrollState())
-            .padding(30.dp)
+            .fillMaxSize()
+            .padding(top = 30.dp)
             .paddingFromBaseline(top = 70.dp)
     ) {
-        // Llamada a PacienteSection
-        PacienteSection() {
-            // Este es el bloque content que se pasa a PacienteSection
-            pacientes.forEach { paciente ->
-                PacienteCard(paciente, onDeleteClick = { pacienteId ->
-                    pacientesViewModel.deletePaciente(pacienteId)
-                })
+        // Encabezado fijo
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+
+        ) {
+            Text(
+                text = "Pacientes",
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.weight(1f)
+            )
+            AgregarPacienteButton(onPacienteAgregado = { paciente ->
+                pacientesViewModel.addPaciente(paciente)
+            })
+        }
+
+        // Lista desplazable de pacientes
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 60.dp)
+        ) {
+            items(pacientes) { paciente ->
+                PacienteCard(
+                    paciente = paciente,
+                    onDeleteClick = { pacienteId ->
+                        pacientesViewModel.deletePaciente(pacienteId)
+                    }
+                )
             }
         }
     }
 }
 
-@Composable
-fun PacienteSection(
-    viewModel: PacientesViewModel = hiltViewModel(),
-    content: @Composable () -> Unit,
-) {
-    Column {
-        Row {
-            Text(
-                text = "Pacientes",
-                style = MaterialTheme.typography.displaySmall,
-                modifier = Modifier.weight(1f)
-            )
-            // Botón de agregar paciente
-            AgregarPacienteButton(
-                onPacienteAgregado = { paciente ->
-                    viewModel.addPaciente(paciente)
-                }
-            )
-        }
-        // Ejecutamos el contenido que pasamos a este Composable
-        content()
-    }
-}
 
 @Composable
 fun PacienteCard(
@@ -98,51 +109,60 @@ fun PacienteCard(
         modifier = modifier.padding(top = 30.dp),
         shape = MaterialTheme.shapes.extraSmall,
         color = MaterialTheme.colorScheme.background,
-        shadowElevation = 5.dp
+        shadowElevation = 1.dp
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = paciente.nombre, fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = "Edad: ${paciente.edad}", fontSize = 11.sp,
-                        fontWeight = FontWeight.W200,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                }
-            }
-
-            HorizontalDivider(
+        Row(modifier = Modifier.fillMaxHeight()) {
+            VerticalDivider(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                thickness = 4.dp,
                 modifier = Modifier
-                    .padding(top = 3.dp)
-                    .fillMaxWidth(),
-                thickness = 2.dp
+                    .height(146.dp)
+                    .width(18.dp)
             )
-            Text(
-                text = "Fecha de registro: ${paciente.fechaRegistro}",
-                fontSize = 9.sp,
-                fontWeight = FontWeight.Thin,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-            Row(
-                modifier = Modifier.padding(horizontal = 10.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
             ) {
-                EditButton(Modifier.weight(1f))
-                DeleteButton(Modifier.weight(1f), onClick = {
-                    onDeleteClick(paciente.id)
-                })
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = paciente.nombre, fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Edad: ${paciente.edad}", fontSize = 11.sp,
+                            fontWeight = FontWeight.W200,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                }
+
+                HorizontalDivider(
+                    modifier = Modifier
+                        .padding(top = 3.dp)
+                        .fillMaxWidth(),
+                    thickness = 2.dp
+                )
+                Text(
+                    text = "Fecha de registro: ${paciente.fechaRegistro}",
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Thin,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Row(
+                    modifier = Modifier.padding(horizontal = 10.dp)
+                ) {
+                    EditButton(Modifier.weight(1f))
+                    DeleteButton(Modifier.weight(1f), onClick = {
+                        onDeleteClick(paciente.id)
+                    })
+                }
             }
         }
     }
@@ -197,7 +217,15 @@ fun DeleteButton(modifier: Modifier, onClick: () -> Unit) {
     ) {
         Text("Eliminar", fontSize = 10.sp, modifier = Modifier.align(Alignment.CenterVertically))
     }
-    ConfirmDialog()
+
+    LogoutDialog(
+        showDialog,
+        onDismiss = { showDialog = false },
+        title = "Confirmar eliminar",
+        text = "¿Estás seguro de que quieres eliminar al paciente?",
+        onClick = onClick
+    )
+
 }
 
 

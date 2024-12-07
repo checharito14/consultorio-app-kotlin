@@ -46,7 +46,7 @@ fun NavGraph(navController: NavHostController, auth: FirebaseAuth) {
         }
         composable("home") {
             val userId = FirebaseAuth.getInstance().currentUser?.uid
-            HomeScreen(userId)
+            HomeScreen(navController = navController,userId)
         }
 
     }
