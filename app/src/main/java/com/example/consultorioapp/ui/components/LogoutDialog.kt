@@ -25,7 +25,6 @@ fun LogoutDialog(
             confirmButton = {
                 TextButton(onClick = {
                     onClick()
-                    onDismiss()
                 }) {
                     Text("Si", color = MaterialTheme.colorScheme.primary)
                 }

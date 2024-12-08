@@ -107,7 +107,6 @@ fun DialogForm(
     onNombreChange: (String) -> Unit,
     edad: String,
     onEdadChange: (String) -> Unit,
-    modifier: Modifier = Modifier
 ) {
     HorizontalDivider(
         modifier = Modifier

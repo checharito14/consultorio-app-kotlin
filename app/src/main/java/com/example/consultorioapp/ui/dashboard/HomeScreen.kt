@@ -69,8 +69,8 @@ fun ContentScreen(
         title = "Cerrar Sesión",
         text = "¿Estas seguro que quieres cerrar sesión?",
         onClick = {
-            onLogout()
             showDialog = false
+            onLogout()
         }
     )
 

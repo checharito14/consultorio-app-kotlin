@@ -1,8 +1,6 @@
 package com.example.consultorioapp.ui.citas
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,14 +12,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
@@ -37,30 +32,44 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 
 @Composable
 fun CitasScreen(modifier: Modifier = Modifier) {
     Column(
         modifier
             .fillMaxSize()
-            .padding(30.dp)
             .paddingFromBaseline(top = 70.dp)
     ) {
-        Text("Citas", style = MaterialTheme.typography.headlineMedium)
+        Column(modifier = Modifier.padding(30.dp)) {
+            Text("Citas", style = MaterialTheme.typography.headlineMedium)
 
-        CitasContador()
-        CitasFilter()
+            CitasContador()
+        }
+
+        Spacer(Modifier.height(40.dp))
+        Surface(
+            shape = RoundedCornerShape(
+                topStart = 36.dp,
+                topEnd = 36.dp,
+                bottomEnd = 0.dp,
+                bottomStart = 0.dp
+            ),
+            color = MaterialTheme.colorScheme.background,
+            shadowElevation = 2.dp
+        ) {
+            Column {
+                CitasFilter()
+            }
+        }
     }
 }
 
 @Composable
 fun CitasContador(modifier: Modifier = Modifier) {
+    var showDialog by remember { mutableStateOf(false) }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -116,12 +125,13 @@ fun CitasContador(modifier: Modifier = Modifier) {
             }
         }
         Spacer(modifier = Modifier.width(10.dp))
+        //Boton add
         Button(
             modifier = Modifier
                 .weight(0.7f)
                 .fillMaxHeight(),
             shape = MaterialTheme.shapes.medium,
-            onClick = {}) {
+            onClick = { showDialog = true }) {
             Icon(
                 imageVector = Icons.Default.Add,
                 modifier = Modifier.size(30.dp),
@@ -129,6 +139,10 @@ fun CitasContador(modifier: Modifier = Modifier) {
             )
         }
     }
+    AddCitaDialog(
+        showDialog = showDialog,
+        onDismiss = { showDialog = false }
+    )
 }
 
 @Composable
@@ -138,18 +152,18 @@ fun CitasFilter() {
 
     TabRow(
         selectedTabIndex = selectedIndex,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
         contentColor = MaterialTheme.colorScheme.primary,
         indicator = { tabPositions ->
             TabRowDefaults.Indicator(
                 modifier = Modifier.tabIndicatorOffset(tabPositions[selectedIndex]),
-                color = Color.Green,
-                height = 3.dp // Ajusta la altura del indicador
+                color = MaterialTheme.colorScheme.tertiary,
+                height = 3.dp
             )
         },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp)
+            .padding(25.dp)
             .background(
                 color = MaterialTheme.colorScheme.surface,
                 shape = RoundedCornerShape(16.dp)
@@ -160,12 +174,37 @@ fun CitasFilter() {
                 selected = selectedIndex == index,
                 onClick = { selectedIndex = index },
                 text = { Text(text = title, style = MaterialTheme.typography.bodyMedium) },
-                selectedContentColor = Color.Green,
+                selectedContentColor = MaterialTheme.colorScheme.secondary,
                 unselectedContentColor = Color.Gray
             )
         }
     }
+    when (selectedIndex) {
+        0 -> ProximasCitas()
+        1 -> PasadasCitas()
+        2 -> CanceladasCitas()
+    }
 }
+
+@Composable
+fun ProximasCitas() {
+    Column(
+        modifier = Modifier.padding(20.dp)
+    ) {
+        CitaCard()
+    }
+}
+
+@Composable
+fun CanceladasCitas() {
+
+}
+
+@Composable
+fun PasadasCitas() {
+    Text("Pasadas")
+}
+
 
 
 
