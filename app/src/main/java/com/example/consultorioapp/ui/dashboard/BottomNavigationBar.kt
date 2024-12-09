@@ -1,6 +1,5 @@
 package com.example.consultorioapp.ui.dashboard
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +32,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.consultorioapp.ui.theme.AppTheme
@@ -47,7 +47,7 @@ fun BottomNavigationBar(
         BottomNavItem("Home", Icons.Default.Home, "home"),
         BottomNavItem("Pacientes", Icons.Default.Person, "pacientes"),
         BottomNavItem("Citas", Icons.Default.DateRange, "citas"),
-        BottomNavItem("", Icons.AutoMirrored.Filled.ExitToApp, "salir"),
+        BottomNavItem("Salir", Icons.AutoMirrored.Filled.ExitToApp, "salir"),
     )
 
     Box(
@@ -55,10 +55,10 @@ fun BottomNavigationBar(
         contentAlignment = Alignment.BottomCenter
     ) {
         NavigationBar(
-            modifier = Modifier.
-                padding(horizontal = 16.dp, vertical = 30.dp)
-                .fillMaxWidth(0.9f)
-                .height(70.dp)
+            modifier = Modifier
+//                .padding(bottom = 50.dp)
+//                .fillMaxWidth(0.9f)
+////                .height(70.dp)
                 .shadow(elevation = 8.dp, shape = RoundedCornerShape(30.dp)),
             containerColor = MaterialTheme.colorScheme.onPrimary
         ) {
@@ -69,19 +69,20 @@ fun BottomNavigationBar(
                         Icon(
                             imageVector = item.icon,
                             contentDescription = item.name,
-                            modifier = Modifier.padding(top = 26.dp),
-                            tint = if (selected) Color(0xFF9DF2E6) else Color(0xFF646A83  )
+//                            modifier = Modifier.padding(top = 26.dp),
+                            tint = if (selected) MaterialTheme.colorScheme.inversePrimary else Color(0xFF646A83  )
                         )
                     },
                     label = {
                         Text(
                             text = item.name,
-                            color = if (selected) Color(0xFF9DF2E6) else Color(0xFF646A83  )
+                            fontSize = 10.sp,
+                            color = if (selected) MaterialTheme.colorScheme.inversePrimary else Color(0xFF646A83  )
                         )
                     },
                     selected = selected,
                     onClick = { onItemSelected(index) },
-                    alwaysShowLabel = false,
+                    alwaysShowLabel = true,
                     colors = NavigationBarItemDefaults.colors(
                         indicatorColor = Color.Transparent
                     )

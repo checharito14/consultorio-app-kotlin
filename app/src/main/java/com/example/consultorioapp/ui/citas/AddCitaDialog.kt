@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,10 +42,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.consultorioapp.data.models.Paciente
 import com.example.consultorioapp.ui.components.CustomTextField
 import com.example.consultorioapp.ui.pacientes.PacientesDropdown
@@ -57,11 +60,16 @@ import java.util.UUID
 
 @Composable
 fun AddCitaDialog(showDialog: Boolean, onDismiss: () -> Unit) {
+    val citasViewModel: CitasViewModel = hiltViewModel()
+
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { onDismiss() },
             confirmButton = {
                 TextButton(onClick = {
+                    citasViewModel.saveCita()
+                    citasViewModel.fetchCitas()
+                    citasViewModel.contadorCitas()
                     onDismiss()
                 }) {
                     Text("Confirmar")
@@ -84,7 +92,9 @@ fun AddCitaDialog(showDialog: Boolean, onDismiss: () -> Unit) {
             },
             text = {
                 CitaForm()
-            }
+            },
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            shape = MaterialTheme.shapes.small
         )
 
     }
@@ -92,12 +102,9 @@ fun AddCitaDialog(showDialog: Boolean, onDismiss: () -> Unit) {
 
 @Composable
 fun CitaForm() {
+    val citasViewModel: CitasViewModel = hiltViewModel()
 
-    val pacientesViewModel: PacientesViewModel = hiltViewModel()
-//    var selectedDate
-    var selectedHour by remember { mutableStateOf<String?>(null) }
-    var descripcion by remember { mutableStateOf("") }
-    var selectedPaciente by remember { mutableStateOf("") }
+    val formState by citasViewModel.citaFormState.collectAsState()
 
     var expandedDatePicker by remember { mutableStateOf(false) }
     var expandedTimePicker by remember { mutableStateOf(false) }
@@ -105,7 +112,10 @@ fun CitaForm() {
     if (expandedDatePicker) {
         DatePickerDialog(
             onDateSelected = { year, month, day ->
-                selectedDate = "$day/${month + 1}/$year"
+                citasViewModel.updateFormState(
+                    formState.copy(fecha = "$day/${month + 1}/$year")
+                )
+
                 expandedDatePicker = false
             }
         )
@@ -114,7 +124,9 @@ fun CitaForm() {
     if (expandedTimePicker) {
         TimePickerDialog(
             onHourSelected = { hour ->
-                selectedHour = "$hour:00"
+                citasViewModel.updateFormState(
+                    formState.copy(hora = hour)
+                )
                 expandedTimePicker = false
             }
         )
@@ -130,13 +142,19 @@ fun CitaForm() {
         modifier = Modifier.fillMaxWidth()
     ) {
         PacientesDropdown(onPacienteSelected = { paciente ->
-            selectedPaciente = paciente.id
+            citasViewModel.updateFormState(
+                formState.copy(pacienteId = paciente.nombre)
+            )
         })
         Spacer(Modifier.height(8.dp))
         CustomTextField(
-            value = descripcion,
+            value = formState.descripcion.capitalize(),
             label = "Motivo de la cita",
-            onTextFieldChanged = { descripcion = it },
+            onTextFieldChanged = { newDescripcion ->
+                citasViewModel.updateFormState(
+                    formState.copy(descripcion = newDescripcion)
+                )
+            },
         )
         Spacer(Modifier.height(8.dp))
         Text("Fecha:")
@@ -147,7 +165,7 @@ fun CitaForm() {
             shape = MaterialTheme.shapes.extraSmall,
             onClick = { expandedDatePicker = true }) {
             Text(
-                text = selectedDate ?: "Selecciona la fecha",
+                text = formState.fecha ?: "Selecciona la fecha",
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
@@ -160,7 +178,7 @@ fun CitaForm() {
             shape = MaterialTheme.shapes.extraSmall,
             onClick = { expandedTimePicker = true }) {
             Text(
-                text = selectedHour ?: "Selecciona la hora",
+                text = formState.hora ?: "Selecciona la hora",
                 color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Start
             )
@@ -192,18 +210,17 @@ fun DatePickerDialog(onDateSelected: (Int, Int, Int) -> Unit) {
 }
 
 @Composable
-fun TimePickerDialog(onHourSelected: (Int) -> Unit) {
+fun TimePickerDialog(onHourSelected: (String) -> Unit) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
 
     val hour = calendar.get(Calendar.HOUR_OF_DAY)
 
-    val availableHours = (9..18).toList()
 
     val timePicker = TimePickerDialog(
         context,
         { _, selectedHour, _ ->
-            onHourSelected(selectedHour)
+            onHourSelected(selectedHour.toString())
         },
         hour,
         0,

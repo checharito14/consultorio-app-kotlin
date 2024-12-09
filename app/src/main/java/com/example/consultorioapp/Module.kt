@@ -1,5 +1,7 @@
 package com.example.consultorioapp
 
+import com.example.consultorioapp.data.models.Cita
+import com.example.consultorioapp.data.repository.CitaRepository
 import com.example.consultorioapp.data.repository.PacientesRepository
 import com.example.consultorioapp.ui.pacientes.PacientesViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -24,6 +26,12 @@ object AppModule {
     @Singleton
     fun providePacientesRepository(firestore: FirebaseFirestore): PacientesRepository {
         return PacientesRepository(firestore)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCitaRepository(firestore: FirebaseFirestore): CitaRepository{
+        return CitaRepository(firestore)
     }
 
     @Provides

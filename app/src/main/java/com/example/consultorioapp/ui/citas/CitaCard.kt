@@ -1,5 +1,6 @@
 package com.example.consultorioapp.ui.citas
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
@@ -18,52 +20,79 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardElevation
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.consultorioapp.R
+import com.example.consultorioapp.data.models.Cita
 import com.example.consultorioapp.ui.theme.AppTheme
 
 @Composable
-fun CitaCard(modifier: Modifier = Modifier) {
+fun CitaCard(modifier: Modifier = Modifier, cita: Cita) {
     Card(
-        modifier = modifier.padding(horizontal = 25.dp, vertical = 15.dp),
+        modifier = modifier.padding(horizontal = 15.dp, vertical = 15.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background
+            containerColor = Color(0xFFFFFFFF)
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 1.dp
         ),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.small,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(horizontal = 18.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column {
-                Text(
-                    "Cesar Rice Peraza",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.user),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(25.dp)
+                        .clip(CircleShape)
                 )
-                Text("Revision General", style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.width(10.dp))
+                Column {
+                    Text(
+                        cita.pacienteId,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(cita.descripcion, style = MaterialTheme.typography.bodySmall)
+                }
+
+
             }
-            Icon(imageVector = Icons.Default.MoreVert, contentDescription = "Details")
+            MoreDetailsButton(cita = cita)
         }
 
         Spacer(Modifier.height(5.dp))
@@ -73,16 +102,16 @@ fun CitaCard(modifier: Modifier = Modifier) {
                 .padding(
                     PaddingValues(
                         bottom = 15.dp,
-                        end = 8.dp,
-                        start = 8.dp
+                        end = 18.dp,
+                        start = 18.dp
                     )
                 ),
-            color = Color(0xff006b5a),
+            color = MaterialTheme.colorScheme.secondaryContainer,
             shape = MaterialTheme.shapes.small,
-            shadowElevation = 2.dp
+            shadowElevation = 1.dp
         ) {
             Row(
-                modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp),
+                modifier = Modifier.padding(vertical = 1.dp, horizontal = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -90,30 +119,26 @@ fun CitaCard(modifier: Modifier = Modifier) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        modifier = Modifier.size(12.dp).clickable {  },
+                        modifier = Modifier
+                            .size(12.dp)
+                            .clickable { },
                         painter = painterResource(id = R.drawable.ic_schedule),
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimary,
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
 
-                    )
+                        )
                     Text(
-                        "Lunes",
+                        cita.fecha ?: "",
                         modifier = Modifier.padding(start = 8.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontSize = 10.sp,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
                         fontWeight = FontWeight.Light
                     )
                 }
                 Text(
-                    "May 9, 2022",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontWeight = FontWeight.Light
-                )
-                Text(
-                    "8:00 - 8:45am",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimary,
+                    "Hora: ${cita.hora}:00" ?: "",
+                    fontSize = 10.sp,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     fontWeight = FontWeight.Light
                 )
             }
@@ -121,11 +146,34 @@ fun CitaCard(modifier: Modifier = Modifier) {
     }
 }
 
-
-@Preview(showBackground = true)
 @Composable
-private fun CitaCardPreview() {
-    AppTheme {
-        CitaCard()
+fun MoreDetailsButton(cita: Cita) {
+    var showMenu by remember { mutableStateOf(false) }
+    val citasViewModel: CitasViewModel = hiltViewModel()
+
+
+    IconButton(onClick = { showMenu = true }) {
+        Icon(
+            imageVector = Icons.Default.MoreVert, // Ícono de tres puntos
+            contentDescription = "More details"
+        )
+    }
+
+    DropdownMenu(
+        expanded = showMenu,
+        onDismissRequest = { showMenu = false }
+    ) {
+        DropdownMenuItem(
+            onClick = {
+                citasViewModel.changeCitaState(cita)
+                citasViewModel.fetchCitas()
+                citasViewModel.contadorCitas()
+                showMenu = false
+            },
+            text = { Text("Mover a canceladas") },
+        )
     }
 }
+
+
+
