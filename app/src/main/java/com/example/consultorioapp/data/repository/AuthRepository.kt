@@ -1,8 +1,11 @@
 package com.example.consultorioapp.data.repository
 
+import android.util.Log
+import com.example.consultorioapp.data.models.Paciente
 import com.google.firebase.auth.FirebaseAuth
 import com.example.consultorioapp.data.models.User
 import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository(private val auth: FirebaseAuth) {
@@ -26,5 +29,6 @@ class AuthRepository(private val auth: FirebaseAuth) {
             Result.failure(e)
         }
     }
+
 
 }

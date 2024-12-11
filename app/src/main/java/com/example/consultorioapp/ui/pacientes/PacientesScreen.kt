@@ -2,6 +2,7 @@ package com.example.consultorioapp.ui.pacientes
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,20 +11,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -32,7 +30,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,29 +44,26 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.consultorioapp.R
 import com.example.consultorioapp.data.models.Paciente
 import com.example.consultorioapp.ui.components.LogoutDialog
 
 @Composable
 fun PacientesScreen(
-    userId: String?,
     modifier: Modifier = Modifier
 ) {
     val pacientesViewModel: PacientesViewModel = hiltViewModel()
     val pacientes by pacientesViewModel.pacientes.collectAsState()
+    val isLoading by pacientesViewModel.isLoading.collectAsState()
 
     // Fetch pacientes
     LaunchedEffect(Unit) {
         pacientesViewModel.fetchPacientes()
     }
-
     Column(
         modifier
             .fillMaxSize()
@@ -92,21 +86,41 @@ fun PacientesScreen(
                 pacientesViewModel.addPaciente(paciente)
             })
         }
-
-        // Lista desplazable de pacientes
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 60.dp)
-        ) {
-            items(pacientes) { paciente ->
-                PacienteCard(
-                    paciente = paciente,
-                    onDeleteClick = { pacienteId ->
-                        pacientesViewModel.deletePaciente(pacienteId)
+        if (pacientes.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text("Aun no tienes pacientes")
+            }
+        } else {
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .wrapContentSize(Alignment.Center)
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                // Lista desplazable de pacientes
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 100.dp)
+                ) {
+                    items(pacientes) { paciente ->
+                        PacienteCard(
+                            paciente = paciente,
+                            onDeleteClick = { pacienteId ->
+                                pacientesViewModel.deletePaciente(pacienteId)
+                            }
+                        )
                     }
-                )
+                }
             }
         }
     }
@@ -121,7 +135,7 @@ fun PacienteCard(
 ) {
     Surface(
         modifier = modifier.padding(top = 30.dp),
-        shape = MaterialTheme.shapes.extraSmall,    
+        shape = MaterialTheme.shapes.extraSmall,
         color = MaterialTheme.colorScheme.background,
         shadowElevation = 1.dp
     ) {
@@ -158,18 +172,25 @@ fun PacienteCard(
                             text = paciente.nombre, fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 16.dp).align(Alignment.CenterHorizontally)
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .align(Alignment.CenterHorizontally)
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
                             text = "Edad: ${paciente.edad}", fontSize = 13.sp,
                             fontWeight = FontWeight.W200,
-                            modifier = Modifier.padding(horizontal = 16.dp).align(Alignment.CenterHorizontally)
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .align(Alignment.CenterHorizontally)
                         )
                     }
-                    DeleteButton(onClick = {
-                        onDeleteClick(paciente.id)
-                    })
+                    Row {
+                        EditButton(paciente = paciente)
+                        DeleteButton(onClick = {
+                            onDeleteClick(paciente.id)
+                        })
+                    }
                 }
 
                 HorizontalDivider(
@@ -180,16 +201,10 @@ fun PacienteCard(
                 )
                 Text(
                     text = "Fecha de registro: ${paciente.fechaRegistro}",
-                    fontSize = 12.sp,
+                    fontSize = 10.sp,
                     fontWeight = FontWeight.Thin,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp)
                 )
-//                Row(
-//                    modifier = Modifier.padding(horizontal = 10.dp)
-//                ) {
-////                    EditButton()
-//
-//                }
             }
         }
     }
@@ -214,19 +229,26 @@ fun AgregarPacienteButton(modifier: Modifier = Modifier, onPacienteAgregado: (Pa
 }
 
 @Composable
-fun EditButton() {
-    OutlinedButton(
-        onClick = {},
-        modifier = Modifier
-            .padding(end = 8.dp),
-        shape = MaterialTheme.shapes.extraSmall,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
-            contentColor = MaterialTheme.colorScheme.onSecondary
-        )
+fun EditButton(paciente: Paciente) {
+    var showDialog by rememberSaveable { mutableStateOf(false) }
+    val pacientesViewModel: PacientesViewModel = hiltViewModel()
+    IconButton(
+        onClick = { showDialog = true },
     ) {
-        Text("Editar", fontSize = 10.sp, modifier = Modifier.align(Alignment.CenterVertically))
+        Icon(
+            imageVector = Icons.Default.Edit,
+            contentDescription = "Eliminar",
+            tint = MaterialTheme.colorScheme.tertiary
+        )
     }
+    AddPacienteDialog(
+        showDialog = showDialog,
+        onDismiss = { showDialog = false },
+        onPacienteAgregado = { paciente ->
+            pacientesViewModel.updatePaciente(paciente)
+        },
+        paciente = paciente
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -236,7 +258,7 @@ fun DeleteButton(onClick: () -> Unit) {
     IconButton(
         onClick = { showDialog = true },
     ) {
-        Icon( imageVector = Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.Red)
+        Icon(imageVector = Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.Red)
     }
 
     LogoutDialog(

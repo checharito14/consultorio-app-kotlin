@@ -10,6 +10,6 @@ object ValidationUtils {
     }
 
     fun isNotEmpty(value: String): Boolean {
-        return value.isNotBlank() && value.length >= 3 && value.matches(Regex("[a-zA-Z]+"))
+        return value.isNotBlank() && value.length >= 3
     }
 }

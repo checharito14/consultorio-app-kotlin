@@ -17,11 +17,16 @@ class PacientesViewModel @Inject constructor(private val userId: String, private
     private val _pacientes = MutableStateFlow<List<Paciente>>(emptyList())
     val pacientes: StateFlow<List<Paciente>> = _pacientes
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     fun fetchPacientes() {
         viewModelScope.launch {
+            _isLoading.value = true
             val pacientesList = repository.getPacientes(userId)
             Log.d("pacientes", "$pacientesList")
             _pacientes.value = pacientesList
+            _isLoading.value = false
         }
     }
 

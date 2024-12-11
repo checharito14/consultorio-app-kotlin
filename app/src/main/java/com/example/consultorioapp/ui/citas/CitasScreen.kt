@@ -1,7 +1,6 @@
 package com.example.consultorioapp.ui.citas
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,7 +23,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -44,6 +41,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.consultorioapp.data.models.Cita
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun CitasScreen(modifier: Modifier = Modifier) {
@@ -86,6 +85,7 @@ fun CitasContador(modifier: Modifier = Modifier) {
 
     LaunchedEffect(Unit) {
         citasViewModel.contadorCitas()
+        citasViewModel.fetchCitas()
     }
 
     Row(
@@ -95,7 +95,7 @@ fun CitasContador(modifier: Modifier = Modifier) {
     ) {
         Surface(
             modifier = modifier
-                .weight(2f),
+                .weight(2.7f),
             shape = MaterialTheme.shapes.extraSmall,
             color = MaterialTheme.colorScheme.background,
             shadowElevation = 2.dp
@@ -112,7 +112,7 @@ fun CitasContador(modifier: Modifier = Modifier) {
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
                     )
-                    Text("Hoy", style = MaterialTheme.typography.bodySmall)
+                    Text("Proximas", style = MaterialTheme.typography.bodySmall)
                 }
                 //Total
                 Column(
@@ -150,7 +150,7 @@ fun CitasContador(modifier: Modifier = Modifier) {
             onClick = { showDialog = true }) {
             Icon(
                 imageVector = Icons.Default.Add,
-                modifier = Modifier.size(50.dp),
+                modifier = Modifier.size(100.dp),
                 contentDescription = "Crear cita"
             )
         }
@@ -164,11 +164,12 @@ fun CitasContador(modifier: Modifier = Modifier) {
 @Composable
 fun CitasFilter() {
     var selectedIndex by remember { mutableStateOf(0) }
-    val tabs = listOf("Próximas", "Pasadas", "Canceladas")
+    val tabs = listOf("Próximas", "Urgentes", "Canceladas")
 
     val citasViewModel: CitasViewModel = hiltViewModel()
     val citasCanceladas by citasViewModel.citasCanceladas.collectAsState()
     val citasNoCanceladas by citasViewModel.citasNoCanceladas.collectAsState()
+    val citasUrgentes by citasViewModel.citasUrgentes.collectAsState()
 
     TabRow(
         selectedTabIndex = selectedIndex,
@@ -209,11 +210,14 @@ fun CitasFilter() {
             )
         }
     }
+
     when (selectedIndex) {
         0 -> ProximasCitas(citasNoCanceladas, title = "Proximas")
+        1 -> ProximasCitas(citasUrgentes, title = "Urgentes")
         2 -> ProximasCitas(citasCanceladas, title = "Canceladas")
     }
 }
+
 
 @Composable
 fun ProximasCitas(cita: List<Cita>, title: String) {
@@ -223,33 +227,48 @@ fun ProximasCitas(cita: List<Cita>, title: String) {
     LaunchedEffect(Unit) {
         citasViewModel.fetchCitas()
     }
-    Column(
-        modifier = Modifier
-            .padding(vertical = 10.dp, horizontal = 20.dp)
-    ) {
-        Text(
-            "$title citas",
-            modifier = Modifier.padding(
-                PaddingValues(
-                    bottom = 5.dp,
-                    start = 10.dp
-                )
-            ),
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.bodySmall
-        )
-        LazyColumn(
+    if (cita.isEmpty()) {
+        Column(
             modifier = Modifier
-                .padding(bottom = 140.dp)
+                .fillMaxSize()
+                .padding(top = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            items(cita) { cita ->
-                CitaCard(
-                    cita = cita
-                )
+            Text("No hay citas agendadas")
+        }
+    } else {
+
+        Column(
+            modifier = Modifier
+                .padding(vertical = 10.dp, horizontal = 20.dp)
+        ) {
+            Text(
+                text = if (title.isNotBlank()) "$title citas" else "",
+                modifier = Modifier.padding(
+                    PaddingValues(
+                        bottom = 5.dp,
+                        start = 10.dp
+                    )
+                ),
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodySmall
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .padding(bottom = 140.dp)
+            ) {
+                items(cita) { cita ->
+                    CitaCard(
+                        cita = cita
+                    )
+                }
             }
         }
     }
 }
+
+
+
 
 
 

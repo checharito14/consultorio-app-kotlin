@@ -1,5 +1,6 @@
 package com.example.consultorioapp.data.repository
 
+import android.widget.Toast
 import com.example.consultorioapp.data.models.Cita
 import com.example.consultorioapp.data.models.Paciente
 import com.google.firebase.firestore.FirebaseFirestore
@@ -34,9 +35,14 @@ class CitaRepository(private val firestore: FirebaseFirestore) {
         return Pair(canceladasTask.size(), noCanceladasTask.size())
     }
 
-    suspend fun cambiarEstadoCita(userId: String, cita: Cita) {
+    fun cambiarEstadoCita(userId: String, cita: Cita) {
         val citaRef = firestore.collection("usuarios").document(userId).collection("citas").document(cita.id)
 
-        citaRef.update("cancelada", true)
+        citaRef.update("cancelada", true, "urgente", false)
+    }
+
+    suspend fun deleteCita(userId: String, cita: Cita) {
+        firestore.collection("usuarios").document(userId).collection("citas")
+            .document(cita.id).delete().await()
     }
 }

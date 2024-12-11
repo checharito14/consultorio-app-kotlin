@@ -94,16 +94,11 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
             isPassword = true,
             error = uiState.passwordError ?: null
         )
-        ForgetPassword(
-            Modifier
-                .align(Alignment.End)
-                .padding(top = 10.dp)
-        )
         Spacer(modifier = Modifier.height(18.dp))
         Button(
             onClick = {
-//                viewModel.login()
-                navController.navigate("home")
+                viewModel.login()
+//                navController.navigate("home")
             },
             modifier = Modifier.fillMaxWidth(),
             enabled = !uiState.isLoading,
@@ -136,13 +131,5 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
     }
 }
 
-@Composable
-fun ForgetPassword(modifier: Modifier) {
-    Text(
-        "Olvide mi contraseña",
-        modifier = modifier.clickable { },
-        style = MaterialTheme.typography.bodySmall,
-        color = MaterialTheme.colorScheme.tertiary
-    )
-}
+
 

@@ -91,7 +91,9 @@ class SignupViewModel(
                     firestore.collection("usuarios").document(userId).set(
                         mapOf(
                             "id" to userId,
-                            "name" to user.name.uppercase(),
+                            "name" to user.name.split(" ").joinToString(" ") { palabra ->
+                                palabra.lowercase().replaceFirstChar { it.uppercase() }
+                            },
                             "email" to user.email.trim(),
                         )
                     ).addOnSuccessListener {

@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,15 +60,25 @@ import java.util.Date
 import java.util.UUID
 
 @Composable
-fun AddCitaDialog(showDialog: Boolean, onDismiss: () -> Unit) {
+fun AddCitaDialog(showDialog: Boolean, onDismiss: () -> Unit, isUrgent: Boolean = false) {
     val citasViewModel: CitasViewModel = hiltViewModel()
+
+    LaunchedEffect(showDialog) {
+        if (showDialog) {
+            citasViewModel.resetFormState()
+        }
+    }
 
     if (showDialog) {
         AlertDialog(
             onDismissRequest = { onDismiss() },
             confirmButton = {
                 TextButton(onClick = {
-                    citasViewModel.saveCita()
+                    if (isUrgent) {
+                        citasViewModel.saveUrgentCita()
+                    } else {
+                        citasViewModel.saveCita()
+                    }
                     citasViewModel.fetchCitas()
                     citasViewModel.contadorCitas()
                     onDismiss()
@@ -91,7 +102,7 @@ fun AddCitaDialog(showDialog: Boolean, onDismiss: () -> Unit) {
                 }
             },
             text = {
-                CitaForm()
+                CitaForm(isUrgent = isUrgent)
             },
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             shape = MaterialTheme.shapes.small
@@ -101,7 +112,7 @@ fun AddCitaDialog(showDialog: Boolean, onDismiss: () -> Unit) {
 }
 
 @Composable
-fun CitaForm() {
+fun CitaForm(isUrgent: Boolean) {
     val citasViewModel: CitasViewModel = hiltViewModel()
 
     val formState by citasViewModel.citaFormState.collectAsState()
@@ -111,11 +122,10 @@ fun CitaForm() {
 
     if (expandedDatePicker) {
         DatePickerDialog(
-            onDateSelected = { year, month, day ->
+            onDateSelected = { selectedDate ->
                 citasViewModel.updateFormState(
-                    formState.copy(fecha = "$day/${month + 1}/$year")
+                    formState.copy(fecha = selectedDate)
                 )
-
                 expandedDatePicker = false
             }
         )
@@ -143,7 +153,7 @@ fun CitaForm() {
     ) {
         PacientesDropdown(onPacienteSelected = { paciente ->
             citasViewModel.updateFormState(
-                formState.copy(pacienteId = paciente.nombre)
+                formState.copy(pacienteId = paciente.id, nombrePaciente = paciente.nombre),
             )
         })
         Spacer(Modifier.height(8.dp))
@@ -157,39 +167,40 @@ fun CitaForm() {
             },
         )
         Spacer(Modifier.height(8.dp))
-        Text("Fecha:")
-        OutlinedButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(53.dp),
-            shape = MaterialTheme.shapes.extraSmall,
-            onClick = { expandedDatePicker = true }) {
-            Text(
-                text = formState.fecha ?: "Selecciona la fecha",
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
-        Spacer(Modifier.height(8.dp))
-        Text("Hora:")
-        OutlinedButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(53.dp),
-            shape = MaterialTheme.shapes.extraSmall,
-            onClick = { expandedTimePicker = true }) {
-            Text(
-                text = formState.hora ?: "Selecciona la hora",
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Start
-            )
+        if (!isUrgent) {
+            Text("Fecha:")
+            OutlinedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(53.dp),
+                shape = MaterialTheme.shapes.extraSmall,
+                onClick = { expandedDatePicker = true }) {
+                Text(
+                    text = formState.fecha ?: "Selecciona la fecha",
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
+            Text("Hora:")
+            OutlinedButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(53.dp),
+                shape = MaterialTheme.shapes.extraSmall,
+                onClick = { expandedTimePicker = true }) {
+                Text(
+                    text = formState.hora ?: "Selecciona la hora",
+                    color = MaterialTheme.colorScheme.onBackground,
+                    textAlign = TextAlign.Start
+                )
+            }
         }
     }
-
-
 }
 
 @Composable
-fun DatePickerDialog(onDateSelected: (Int, Int, Int) -> Unit) {
+fun DatePickerDialog(onDateSelected: (String) -> Unit) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
 
@@ -200,7 +211,8 @@ fun DatePickerDialog(onDateSelected: (Int, Int, Int) -> Unit) {
     val datePicker = DatePickerDialog(
         context,
         { _, selectedYear, selectedMonth, selectedDayOfMonth ->
-            onDateSelected(selectedYear, selectedMonth, selectedDayOfMonth)
+            val formattedDate = String.format("%02d/%02d/%d", selectedDayOfMonth, selectedMonth + 1, selectedYear)
+            onDateSelected(formattedDate)
         },
         year,
         month,
@@ -215,25 +227,19 @@ fun TimePickerDialog(onHourSelected: (String) -> Unit) {
     val calendar = Calendar.getInstance()
 
     val hour = calendar.get(Calendar.HOUR_OF_DAY)
+    val minute = calendar.get(Calendar.MINUTE)
 
 
     val timePicker = TimePickerDialog(
         context,
-        { _, selectedHour, _ ->
-            onHourSelected(selectedHour.toString())
+        { _, selectedHour, selectedMinute ->
+            val formattedHour = String.format("%02d:%02d", selectedHour, selectedMinute)
+            onHourSelected(formattedHour)
         },
         hour,
-        0,
+        minute,
         true
     )
 
     timePicker.show()
-}
-
-@Preview
-@Composable
-private fun CitaFormPreview() {
-    AppTheme {
-        CitaForm()
-    }
 }

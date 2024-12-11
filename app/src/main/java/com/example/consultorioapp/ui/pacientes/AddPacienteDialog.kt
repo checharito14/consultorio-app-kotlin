@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,11 +43,19 @@ import java.util.UUID
 fun AddPacienteDialog(
     showDialog: Boolean,
     onDismiss: () -> Unit,
-    onPacienteAgregado: (Paciente) -> Unit
+    onPacienteAgregado: (Paciente) -> Unit,
+    paciente: Paciente? = null,
 ) {
 
     var nombre by rememberSaveable { mutableStateOf("") }
     var edad by rememberSaveable { mutableStateOf("") }
+
+    LaunchedEffect(showDialog, paciente) {
+        if (showDialog) {
+            nombre = paciente?.nombre ?: ""
+            edad = paciente?.edad?.toString() ?: ""
+        }
+    }
 
     if (showDialog) {
         AlertDialog(
@@ -55,16 +64,16 @@ fun AddPacienteDialog(
                 TextButton(onClick = {
                     if (nombre.isNotBlank() && edad.isNotBlank()) {
                         val paciente = Paciente(
-                            id = UUID.randomUUID().toString(),
+                            id = paciente?.id ?: UUID.randomUUID().toString(),
                             nombre = nombre,
                             edad = edad.toInt(),
-                            fechaRegistro = SimpleDateFormat("dd/MM/yyyy").format(Date())
+                            fechaRegistro = paciente?.fechaRegistro ?: SimpleDateFormat("dd/MM/yyyy").format(Date())
                         )
                         onPacienteAgregado(paciente)
                         onDismiss()
                     }
                 }) {
-                    Text(text = "Guardar", color = MaterialTheme.colorScheme.primary)
+                    Text(text = if(paciente != null) "Actualizar" else "Guardar", color = MaterialTheme.colorScheme.primary)
                 }
             },
             title = {
@@ -73,7 +82,7 @@ fun AddPacienteDialog(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Agregar Paciente", style = MaterialTheme.typography.headlineMedium)
+                    Text(text = if(paciente != null)"Actualizar paciente" else "Agregar Paciente", style = MaterialTheme.typography.headlineMedium)
                     IconButton(onClick = { onDismiss() }) {
                         Icon(
                             imageVector = Icons.Default.Close,

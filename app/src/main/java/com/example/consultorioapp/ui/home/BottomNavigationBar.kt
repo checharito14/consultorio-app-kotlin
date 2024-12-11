@@ -42,9 +42,6 @@ fun BottomNavigationBar(
     ) {
         NavigationBar(
             modifier = Modifier
-//                .padding(bottom = 50.dp)
-//                .fillMaxWidth(0.9f)
-////                .height(70.dp)
                 .shadow(elevation = 8.dp, shape = RoundedCornerShape(30.dp)),
             containerColor = MaterialTheme.colorScheme.onPrimary
         ) {
@@ -55,7 +52,6 @@ fun BottomNavigationBar(
                         Icon(
                             imageVector = item.icon,
                             contentDescription = item.name,
-//                            modifier = Modifier.padding(top = 26.dp),
                             tint = if (selected) MaterialTheme.colorScheme.inversePrimary else Color(0xFF646A83  )
                         )
                     },

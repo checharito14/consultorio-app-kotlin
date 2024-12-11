@@ -19,3 +19,4 @@ fun App(modifier: Modifier = Modifier) {
 
     NavGraph(navController = navController, auth = auth)
 }
+
